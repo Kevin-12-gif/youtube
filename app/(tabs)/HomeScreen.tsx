@@ -1,19 +1,18 @@
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
   ActivityIndicator,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Linking,
   Alert,
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from './types';
 import DonateButton from './DonateButton';
+import { RootStackParamList } from './types';
 
 import { gql, useQuery } from '@apollo/client';
 
@@ -195,8 +194,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   rowWrapper: {
-    paddingHorizontal: 10,
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 10, 
+  paddingVertical: 10,
+},
+
   item: {
     alignItems: 'center',
     marginRight: 15,

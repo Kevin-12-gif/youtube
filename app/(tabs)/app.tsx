@@ -1,7 +1,7 @@
 // app/(tabs)/App.tsx
-import React from 'react';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import React from 'react';
 
 import HomeScreen from './HomeScreen';
 import PlaylistScreen from './PlaylistScreen';
@@ -11,7 +11,7 @@ import { RootStackParamList } from './types';
 
 // Apollo Client setup
 const client = new ApolloClient({
-  uri: 'https://gameflux-graphql-api-hamsaaalasadi.replit.app/graphql',
+  uri: 'https://oddball-alarmed-translation-hamsaaalasadi.replit.app/graphql',
   cache: new InMemoryCache(),
 });
 
