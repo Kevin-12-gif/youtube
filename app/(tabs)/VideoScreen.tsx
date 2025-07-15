@@ -1,13 +1,13 @@
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
   Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
 import { RootStackParamList } from './types';
 
@@ -18,10 +18,10 @@ export default function VideoScreen() {
   const navigation = useNavigation();
   const { videoId } = route.params;
 
-  const videoUrl = `https://www.youtube.com/embed/${videoId}`;
+  const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1`;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -30,24 +30,28 @@ export default function VideoScreen() {
         <Text style={styles.headerTitle}>Now Playing</Text>
       </View>
 
-      {/* YouTube Video */}
+      {/* Fullscreen Video */}
       {Platform.OS === 'web' ? (
         <div
           style={{
             width: '100%',
-            height: 240,
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
             border: 'none',
-            overflow: 'hidden',
           }}
         >
           <iframe
-            width="100%"
-            height="100%"
             src={videoUrl}
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            style={{ border: 'none' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+            }}
           ></iframe>
         </div>
       ) : (
@@ -55,20 +59,25 @@ export default function VideoScreen() {
           style={styles.webview}
           source={{ uri: videoUrl }}
           allowsFullscreenVideo
+          javaScriptEnabled
+          domStorageEnabled
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   header: {
-    paddingTop: 20,
-    paddingBottom: 10,
-    paddingHorizontal: 12,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#000',
+    zIndex: 1,
   },
   backButton: {
     color: '#007AFF',
@@ -76,11 +85,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   headerTitle: {
+    color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
   },
   webview: {
     flex: 1,
-    width: Dimensions.get('window').width,
   },
 });
