@@ -25,10 +25,10 @@ export default function GameScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Game Time</Text>
+        <Text style={styles.headerTitle}>Game</Text>
       </View>
 
-      {/* Embedded Game */}
+      {/* Game WebView */}
       {Platform.OS === 'web' ? (
         <div
           style={{
@@ -42,13 +42,9 @@ export default function GameScreen() {
         >
           <iframe
             src={gameUrl}
-            title="Embedded Game"
+            title="Game"
             allowFullScreen
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-            }}
+            style={{ width: '100%', height: '100%', border: 'none' }}
           ></iframe>
         </div>
       ) : (
@@ -66,10 +62,7 @@ export default function GameScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
+  container: { flex: 1, backgroundColor: '#000' },
   header: {
     padding: 12,
     flexDirection: 'row',

@@ -1,30 +1,24 @@
-// app/(tabs)/App.tsx
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
-import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from './HomeScreen';
 import PlaylistScreen from './PlaylistScreen';
 import VideoScreen from './VideoScreen';
-
+import GameScreen from './GameScreen';
 import { RootStackParamList } from './types';
 
-// Apollo Client setup
-const client = new ApolloClient({
-  uri: 'https://oddball-alarmed-translation-hamsaaalasadi.replit.app/graphql',
-  cache: new InMemoryCache(),
-});
-
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: true }}>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Playlist" component={PlaylistScreen} />
         <Stack.Screen name="Video" component={VideoScreen} />
+        <Stack.Screen name="Game" component={GameScreen} />
       </Stack.Navigator>
-    </ApolloProvider>
+    </NavigationContainer>
   );
 }
