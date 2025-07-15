@@ -1,62 +1,131 @@
-import React, { useEffect, useState } from 'react';
-import { Button, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  StatusBar,
+  StyleSheet,
+  Platform,
+  Button,
+  TextInput,
+  Text,
+} from 'react-native';
 import {
   NavigationContainer,
   DefaultTheme,
-  DarkTheme,
+  Theme,
 } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 import HomeScreen from './HomeScreen';
 import PlaylistScreen from './PlaylistScreen';
 import VideoScreen from './VideoScreen';
-import { RootStackParamList } from './types';
 
-const client = new ApolloClient({
-  uri: 'https://oddball-alarmed-translation-hamsaaalasadi.replit.app/graphql',
-  cache: new InMemoryCache(),
-});
+import { RootStackParamList } from './types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
-  const [mode, setMode] = useState<'auto' | 'light' | 'dark'>('auto');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [manualMode, setManualMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Auto switch between light/dark by time
+  // Scheduled times (24h format, e.g. 20 = 8PM)
+  const [startHour, setStartHour] = useState('20'); // dark mode start
+  const [endHour, setEndHour] = useState('6'); // dark mode end
+
   useEffect(() => {
-    const updateTheme = () => {
-      const hour = new Date().getHours();
-      setTheme(hour >= 6 && hour < 19 ? 'light' : 'dark');
-    };
+    if (!manualMode) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const hour = now.getHours();
 
-    if (mode === 'auto') {
-      updateTheme();
-      const interval = setInterval(updateTheme, 5 * 60 * 1000); // every 5 min
+        // Determine if we are in dark mode hours
+        // Supports overnight (e.g. start=20, end=6)
+        const isDark =
+          startHour !== '' &&
+          endHour !== '' &&
+          ((startHour <= endHour && hour >= Number(startHour) && hour < Number(endHour)) ||
+           (startHour > endHour && (hour >= Number(startHour) || hour < Number(endHour))));
+
+        setDarkMode(isDark);
+      }, 60000); // check every minute
+
       return () => clearInterval(interval);
-    } else {
-      setTheme(mode);
     }
-  }, [mode]);
+  }, [manualMode, startHour, endHour]);
+
+  const backgroundColor = darkMode ? '#111111' : '#FFFFFF';
+
+  const navTheme: Theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: backgroundColor,
+      card: backgroundColor,
+      text: '#000000',
+      primary: '#000000',
+    },
+  };
+
+  // HeaderRight component with toggle and inputs
+  const HeaderRight = () => (
+    <View style={styles.headerRight}>
+      <Button
+        title={manualMode ? (darkMode ? 'Light Mode' : 'Dark Mode') : 'Schedule'}
+        onPress={() => {
+          if (manualMode) {
+            setDarkMode(!darkMode);
+          } else {
+            setDarkMode(false);
+          }
+          setManualMode(!manualMode);
+        }}
+        color="#000"
+      />
+      {!manualMode && (
+        <View style={styles.timeInputs}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Start</Text>
+            <TextInput
+              value={startHour}
+              onChangeText={setStartHour}
+              keyboardType="number-pad"
+              maxLength={2}
+              style={styles.input}
+              placeholder="20"
+              placeholderTextColor="#666"
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>End</Text>
+            <TextInput
+              value={endHour}
+              onChangeText={setEndHour}
+              keyboardType="number-pad"
+              maxLength={2}
+              style={styles.input}
+              placeholder="6"
+              placeholderTextColor="#666"
+            />
+          </View>
+        </View>
+      )}
+    </View>
+  );
 
   return (
-    <ApolloProvider client={client}>
-      <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
+    <View style={[styles.root, { backgroundColor }]}>
+      <StatusBar
+        barStyle={darkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundColor}
+      />
+      <NavigationContainer theme={navTheme}>
         <Stack.Navigator
+          initialRouteName="Home"
           screenOptions={{
-            headerRight: () => (
-              <View style={{ marginRight: 10 }}>
-                <Button
-                  title={mode === 'auto' ? 'Auto' : theme === 'dark' ? 'Dark' : 'Light'}
-                  onPress={() =>
-                    setMode((prev) =>
-                      prev === 'auto' ? 'light' : prev === 'light' ? 'dark' : 'auto'
-                    )
-                  }
-                />
-              </View>
-            ),
+            headerTintColor: '#000000',
+            headerTitleStyle: { color: '#000000' },
+            headerStyle: { backgroundColor: backgroundColor },
+            contentStyle: { backgroundColor: backgroundColor },
+            headerRight: HeaderRight,
           }}
         >
           <Stack.Screen name="Home" component={HomeScreen} />
@@ -64,6 +133,42 @@ export default function App() {
           <Stack.Screen name="Video" component={VideoScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    </ApolloProvider>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 20 : 20,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  timeInputs: {
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  inputGroup: {
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  label: {
+    color: '#000',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  input: {
+    width: 30,
+    height: 30,
+    borderWidth: 1,
+    borderColor: '#000',
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    borderRadius: 4,
+    padding: 0,
+  },
+});
