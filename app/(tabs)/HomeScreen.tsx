@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
-  rowWrapper: {
+ rowWrapper: {
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',

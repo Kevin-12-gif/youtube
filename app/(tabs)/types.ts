@@ -6,5 +6,4 @@ export type RootStackParamList = {
   Game: { gameUrl: string }; 
 };
 
-
  
