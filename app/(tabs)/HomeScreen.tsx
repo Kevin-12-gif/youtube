@@ -10,11 +10,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from 'react-native';
 import DonateButton from './DonateButton';
 import { RootStackParamList } from './types';
 
 import { gql, useQuery } from '@apollo/client';
+
+import mobileAds, { InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
 
 // Updated TypeScript interface for GraphQL query result
 interface GamesData {
@@ -49,6 +52,35 @@ export default function HomeScreen() {
 
   const { loading: loadingGames, error: errorGames, data } = useQuery<GamesData>(GAMES_QUERY);
 
+  // Interstitial ad setup
+  const interstitialAdUnitId = Platform.select({
+    ios: 'ca-app-pub-1988887326141459/7661195064',       
+    android: 'ca-app-pub-1988887326141459/7581304017', 
+    default: TestIds.INTERSTITIAL,
+  });
+
+  const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId!);
+
+  const [adLoaded, setAdLoaded] = useState(false);
+  const [adClosed, setAdClosed] = useState(false);
+
+  useEffect(() => {
+    const adListener = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+      setAdLoaded(true);
+    });
+
+    const adClosedListener = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+      setAdClosed(true);
+    });
+
+    interstitial.load();
+
+    return () => {
+      adListener();
+      adClosedListener();
+    };
+  }, []);
+
   useEffect(() => {
     const fetchChannelAndPlaylists = async () => {
       try {
@@ -75,10 +107,22 @@ export default function HomeScreen() {
     fetchChannelAndPlaylists();
   }, []);
 
+  // Show loading + ad screen until ad is closed
+  if (!adClosed) {
+    if (adLoaded) {
+      interstitial.show();
+    }
+
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+        <Text>Loading Ad...</Text>
+      </View>
+    );
+  }
+
   if (loadingYouTube || loadingGames)
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
-
-  
 
   const openGameUrl = (url?: string) => {
     if (url) {
@@ -133,35 +177,35 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Games Row */}
-<Text style={styles.rowTitle}>Games</Text>
-{errorGames ? (
-  <Text style={{ textAlign: 'center', color: 'red' }}>
-    Failed to load games.
-  </Text>
-) : (
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.rowWrapper}
-  >
-    {(data?.games ?? []).map((game) => (
-      <View key={game.id} style={styles.item}>
-        <TouchableOpacity
-          style={styles.itemCircle}
-          onPress={() => openGameUrl(game.url)}
-        >
-          <Image
-            source={{ uri: game.icon || undefined }}
-            style={styles.itemImage}
-          />
-        </TouchableOpacity>
-        <Text style={styles.itemName} numberOfLines={1}>
-          {game.title}
+      <Text style={styles.rowTitle}>Games</Text>
+      {errorGames ? (
+        <Text style={{ textAlign: 'center', color: 'red' }}>
+          Failed to load games.
         </Text>
-      </View>
-    ))}
-  </ScrollView>
-)}
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.rowWrapper}
+        >
+          {(data?.games ?? []).map((game) => (
+            <View key={game.id} style={styles.item}>
+              <TouchableOpacity
+                style={styles.itemCircle}
+                onPress={() => openGameUrl(game.url)}
+              >
+                <Image
+                  source={{ uri: game.icon || undefined }}
+                  style={styles.itemImage}
+                />
+              </TouchableOpacity>
+              <Text style={styles.itemName} numberOfLines={1}>
+                {game.title}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
       {/* Donate Button */}
       <View style={styles.donateWrapper}>
@@ -193,14 +237,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
- rowWrapper: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 10, 
-  paddingVertical: 10,
-},
-
+  rowWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 10,
+  },
   item: {
     alignItems: 'center',
     marginRight: 15,

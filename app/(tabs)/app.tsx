@@ -124,7 +124,7 @@ export default function App() {
             headerTintColor: '#000000',
             headerTitleStyle: { color: '#000000' },
             headerStyle: { backgroundColor: backgroundColor },
-            contentStyle: { backgroundColor: backgroundColor },
+            cardStyle: { backgroundColor: backgroundColor },
             headerRight: HeaderRight,
           }}
         >
