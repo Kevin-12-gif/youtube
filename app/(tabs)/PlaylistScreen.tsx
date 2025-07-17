@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import {
   useNavigation,
@@ -15,8 +17,6 @@ import {
   NavigationProp,
 } from '@react-navigation/native';
 import { RootStackParamList } from './types';
-
-// Import your useTheme hook here
 import { useTheme } from './ThemeContext';
 
 type PlaylistRouteProp = RouteProp<RootStackParamList, 'Playlist'>;
@@ -32,8 +32,6 @@ type Video = {
 export default function PlaylistScreen() {
   const navigation = useNavigation<PlaylistNavProp>();
   const route = useRoute<PlaylistRouteProp>();
-
-  // Use the theme context
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -50,7 +48,7 @@ export default function PlaylistScreen() {
     );
   }
 
-  const { playlistId, title } = route.params;
+  const { playlistId } = route.params;
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +89,15 @@ export default function PlaylistScreen() {
     return <ActivityIndicator size="large" style={{ marginTop: 40 }} color={isDark ? '#fff' : '#000'} />;
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+      {/* Back Button at Top */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={[styles.backText, { color: isDark ? '#0af' : '#007AFF' }]}>← Back</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Video List */}
       <FlatList
         data={videos}
         keyExtractor={(item) => item.videoId}
@@ -106,16 +112,31 @@ export default function PlaylistScreen() {
             }
           >
             <Image source={{ uri: item.thumbnailUrl }} style={styles.thumbnail} />
-            <Text style={[styles.videoTitle, { color: isDark ? '#fff' : '#000' }]}>{item.title}</Text>
+            <Text style={[styles.videoTitle, { color: isDark ? '#fff' : '#000' }]}>
+              {item.title}
+            </Text>
           </TouchableOpacity>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: Platform.OS === 'android' ? 20 : 0,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+  },
+  backText: {
+    fontSize: 18,
+  },
   card: {
     marginVertical: 10,
     marginHorizontal: 12,
@@ -130,7 +151,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 16, marginBottom: 10 },
-  backText: { fontSize: 16 },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
 });
