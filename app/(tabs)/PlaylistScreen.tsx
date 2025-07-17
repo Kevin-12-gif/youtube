@@ -160,4 +160,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
   },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 614f4231aebc415b8996c19222d0899a82c03d64
