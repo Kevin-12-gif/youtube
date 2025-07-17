@@ -182,10 +182,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  topBanner: {
-    height: 70,
-    width: '100%',
-  },
+ topBanner: {
+  height: 65,
+  justifyContent: 'center',
+  alignItems: 'flex-end',
+  paddingHorizontal: 15,
+  marginTop: 30, // ⬅️ Add this line to lower the banner and button
+},
+
   topRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
