@@ -16,6 +16,9 @@ import {
 } from '@react-navigation/native';
 import { RootStackParamList } from './types';
 
+// Import your useTheme hook here
+import { useTheme } from './ThemeContext';
+
 type PlaylistRouteProp = RouteProp<RootStackParamList, 'Playlist'>;
 type PlaylistNavProp = NavigationProp<RootStackParamList, 'Playlist'>;
 
@@ -30,12 +33,18 @@ export default function PlaylistScreen() {
   const navigation = useNavigation<PlaylistNavProp>();
   const route = useRoute<PlaylistRouteProp>();
 
+  // Use the theme context
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   if (!route.params) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Error: Missing playlist information.</Text>
+      <View style={[styles.centered, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <Text style={[styles.errorText, { color: isDark ? '#fff' : 'red' }]}>
+          Error: Missing playlist information.
+        </Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>Go Back</Text>
+          <Text style={[styles.backText, { color: isDark ? '#0af' : '#007AFF' }]}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -78,18 +87,11 @@ export default function PlaylistScreen() {
     fetchVideos();
   }, [playlistId]);
 
-  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
+  if (loading)
+    return <ActivityIndicator size="large" style={{ marginTop: 40 }} color={isDark ? '#fff' : '#000'} />;
 
   return (
-    <View style={styles.container}>
-      {/* Header without custom back button */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {title}
-        </Text>
-      </View>
-
-      {/* Video List */}
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
       <FlatList
         data={videos}
         keyExtractor={(item) => item.videoId}
@@ -104,7 +106,7 @@ export default function PlaylistScreen() {
             }
           >
             <Image source={{ uri: item.thumbnailUrl }} style={styles.thumbnail} />
-            <Text style={styles.videoTitle}>{item.title}</Text>
+            <Text style={[styles.videoTitle, { color: isDark ? '#fff' : '#000' }]}>{item.title}</Text>
           </TouchableOpacity>
         )}
       />
@@ -113,19 +115,7 @@ export default function PlaylistScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: {
-    height: 60,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+  container: { flex: 1 },
   card: {
     marginVertical: 10,
     marginHorizontal: 12,
@@ -141,6 +131,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 16, marginBottom: 10, color: 'red' },
-  backText: { fontSize: 16, color: '#007AFF' },
+  errorText: { fontSize: 16, marginBottom: 10 },
+  backText: { fontSize: 16 },
 });

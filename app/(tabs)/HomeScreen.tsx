@@ -1,4 +1,3 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,28 +9,16 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Platform,
 } from 'react-native';
-import DonateButton from './DonateButton';
-import { RootStackParamList } from './types';
-
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { gql, useQuery } from '@apollo/client';
 
-import mobileAds, { InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
+import DonateButton from './DonateButton';
+import ThemeToggleButton from './ToggleThemeButton';
+import { useTheme } from './ThemeContext';
+import { RootStackParamList } from './types';
 
-// Updated TypeScript interface for GraphQL query result
-interface GamesData {
-  games: {
-    id: string;
-    title: string;
-    url?: string;       // URL to launch game
-    icon?: string;      // Image icon for game
-  }[];
-}
-
-const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU'; // replace this
-const CHANNEL_ID = 'UCtlxqyUjGz31UItA-eQJDNg';
-
+// GraphQL query
 const GAMES_QUERY = gql`
   query {
     games {
@@ -43,43 +30,29 @@ const GAMES_QUERY = gql`
   }
 `;
 
+const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU';
+const CHANNEL_ID = 'UCtlxqyUjGz31UItA-eQJDNg';
+
+interface GamesData {
+  games: {
+    id: string;
+    title: string;
+    url?: string;
+    icon?: string;
+  }[];
+}
+
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const [channelTitle, setChannelTitle] = useState('');
   const [channelIcon, setChannelIcon] = useState('');
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [loadingYouTube, setLoadingYouTube] = useState(true);
 
   const { loading: loadingGames, error: errorGames, data } = useQuery<GamesData>(GAMES_QUERY);
-
-  // Interstitial ad setup
-  const interstitialAdUnitId = Platform.select({
-    ios: 'ca-app-pub-1988887326141459/7661195064',       
-    android: 'ca-app-pub-1988887326141459/7581304017', 
-    default: TestIds.INTERSTITIAL,
-  });
-
-  const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId!);
-
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adClosed, setAdClosed] = useState(false);
-
-  useEffect(() => {
-    const adListener = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-      setAdLoaded(true);
-    });
-
-    const adClosedListener = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-      setAdClosed(true);
-    });
-
-    interstitial.load();
-
-    return () => {
-      adListener();
-      adClosedListener();
-    };
-  }, []);
 
   useEffect(() => {
     const fetchChannelAndPlaylists = async () => {
@@ -107,116 +80,120 @@ export default function HomeScreen() {
     fetchChannelAndPlaylists();
   }, []);
 
-  // Show loading + ad screen until ad is closed
-  if (!adClosed) {
-    if (adLoaded) {
-      interstitial.show();
-    }
-
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-        <Text>Loading Ad...</Text>
-      </View>
-    );
-  }
-
-  if (loadingYouTube || loadingGames)
-    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
-
   const openGameUrl = (url?: string) => {
-    if (url) {
-      Linking.canOpenURL(url)
-        .then((supported) => {
-          if (supported) {
-            Linking.openURL(url);
-          } else {
-            Alert.alert('Cannot open the game URL.');
-          }
-        })
-        .catch(() => Alert.alert('An error occurred while trying to open the URL.'));
-    } else {
-      Alert.alert('Game URL not available.');
-    }
+    if (!url) return Alert.alert('Game URL not available.');
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) Linking.openURL(url);
+        else Alert.alert('Cannot open the game URL.');
+      })
+      .catch(() => Alert.alert('Error opening the URL.'));
   };
 
+  if (loadingYouTube || loadingGames) {
+    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Channel Info */}
-      <Image source={{ uri: channelIcon }} style={styles.channelLogo} />
-      <Text style={styles.title}>{channelTitle}</Text>
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+      {/* Top banner with increased height */}
+      <View style={[styles.topBanner, { backgroundColor: isDark ? '#222' : '#eee' }]}>
+        <ThemeToggleButton />
+      </View>
 
-      {/* YouTube Playlists Row */}
-      <Text style={styles.rowTitle}>YouTube Playlists</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.rowWrapper}
-      >
-        {playlists.map((playlist) => (
-          <View key={playlist.id} style={styles.item}>
-            <TouchableOpacity
-              style={styles.itemCircle}
-              onPress={() =>
-                navigation.navigate('Playlist', {
-                  title: playlist.snippet.title,
-                  playlistId: playlist.id,
-                })
-              }
-            >
-              <Image
-                source={{ uri: playlist.snippet.thumbnails.medium.url }}
-                style={styles.itemImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.itemName} numberOfLines={1}>
-              {playlist.snippet.title}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Games Row */}
-      <Text style={styles.rowTitle}>Games</Text>
-      {errorGames ? (
-        <Text style={{ textAlign: 'center', color: 'red' }}>
-          Failed to load games.
+      {/* Scrollable content */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Channel Info */}
+        <Image source={{ uri: channelIcon }} style={styles.channelLogo} />
+        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>
+          {channelTitle}
         </Text>
-      ) : (
+
+        {/* YouTube Playlists */}
+        <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>
+          YouTube Playlists
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.rowWrapper}
         >
-          {(data?.games ?? []).map((game) => (
-            <View key={game.id} style={styles.item}>
+          {playlists.map((playlist) => (
+            <View key={playlist.id} style={styles.item}>
               <TouchableOpacity
                 style={styles.itemCircle}
-                onPress={() => openGameUrl(game.url)}
+                onPress={() =>
+                  navigation.navigate('Playlist', {
+                    title: playlist.snippet.title,
+                    playlistId: playlist.id,
+                  })
+                }
               >
                 <Image
-                  source={{ uri: game.icon || undefined }}
+                  source={{ uri: playlist.snippet.thumbnails.medium.url }}
                   style={styles.itemImage}
                 />
               </TouchableOpacity>
-              <Text style={styles.itemName} numberOfLines={1}>
-                {game.title}
+              <Text style={[styles.itemName, { color: isDark ? '#fff' : '#000' }]} numberOfLines={1}>
+                {playlist.snippet.title}
               </Text>
             </View>
           ))}
         </ScrollView>
-      )}
 
-      {/* Donate Button */}
-      <View style={styles.donateWrapper}>
-        <DonateButton />
-      </View>
-    </ScrollView>
+        {/* Games Section */}
+        <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>Games</Text>
+        {errorGames ? (
+          <Text style={{ textAlign: 'center', color: 'red' }}>
+            Failed to load games.
+          </Text>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.rowWrapper}
+          >
+            {(data?.games ?? []).map((game) => (
+              <View key={game.id} style={styles.item}>
+                <TouchableOpacity
+                  style={styles.itemCircle}
+                  onPress={() => openGameUrl(game.url)}
+                >
+                  <Image
+                    source={{ uri: game.icon || undefined }}
+                    style={styles.itemImage}
+                  />
+                </TouchableOpacity>
+                <Text style={[styles.itemName, { color: isDark ? '#fff' : '#000' }]} numberOfLines={1}>
+                  {game.title}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Donate Button */}
+        <View style={styles.donateWrapper}>
+          <DonateButton />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  container: {
+    flex: 1,
+  },
+  topBanner: {
+    height: 65, // increased by ~30% from 50 to 65
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingHorizontal: 15,
+  },
+  scrollContent: {
+    padding: 20,
+  },
   channelLogo: {
     width: 300,
     height: 300,
@@ -235,12 +212,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
     textAlign: 'center',
-    width: '100%',
   },
   rowWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 10,
     paddingVertical: 10,
   },
@@ -254,6 +229,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     overflow: 'hidden',
+    backgroundColor: '#ccc',
   },
   itemImage: {
     width: '100%',
@@ -262,11 +238,9 @@ const styles = StyleSheet.create({
   itemName: {
     marginTop: 6,
     fontSize: 14,
-    maxWidth: 100,
     textAlign: 'center',
   },
   donateWrapper: {
     marginTop: 20,
-    marginBottom: 0,
   },
 });

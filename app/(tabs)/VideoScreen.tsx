@@ -16,8 +16,8 @@ type VideoRouteProp = RouteProp<RootStackParamList, 'Video'>;
 export default function VideoScreen() {
   const route = useRoute<VideoRouteProp>();
   const navigation = useNavigation();
-  const { videoId } = route.params;
 
+  const { videoId } = route.params;
   const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1`;
 
   return (
@@ -68,10 +68,7 @@ export default function VideoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
+  container: { flex: 1, backgroundColor: '#000' },
   header: {
     padding: 12,
     flexDirection: 'row',
