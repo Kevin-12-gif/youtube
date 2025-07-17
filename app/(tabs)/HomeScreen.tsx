@@ -18,7 +18,6 @@ import ThemeToggleButton from './ToggleThemeButton';
 import { useTheme } from './ThemeContext';
 import { RootStackParamList } from './types';
 
-// GraphQL query
 const GAMES_QUERY = gql`
   query {
     games {
@@ -96,20 +95,20 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-      {/* Top banner with increased height */}
+      {/* Top Banner with lowered toggle */}
       <View style={[styles.topBanner, { backgroundColor: isDark ? '#222' : '#eee' }]}>
-        <ThemeToggleButton />
+        <View style={styles.topRow}>
+          <ThemeToggleButton />
+        </View>
       </View>
 
-      {/* Scrollable content */}
+      {/* Main Content */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Channel Info */}
         <Image source={{ uri: channelIcon }} style={styles.channelLogo} />
         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>
           {channelTitle}
         </Text>
 
-        {/* YouTube Playlists */}
         <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>
           YouTube Playlists
         </Text>
@@ -141,7 +140,6 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
-        {/* Games Section */}
         <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>Games</Text>
         {errorGames ? (
           <Text style={{ textAlign: 'center', color: 'red' }}>
@@ -172,7 +170,6 @@ export default function HomeScreen() {
           </ScrollView>
         )}
 
-        {/* Donate Button */}
         <View style={styles.donateWrapper}>
           <DonateButton />
         </View>
@@ -186,10 +183,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topBanner: {
-    height: 65, // increased by ~30% from 50 to 65
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingHorizontal: 15,
+    height: 70,
+    width: '100%',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 30,
+    marginRight: 15,
   },
   scrollContent: {
     padding: 20,
