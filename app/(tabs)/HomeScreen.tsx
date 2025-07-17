@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
  topBanner: {
-  height: 65,
+  height: 95,
   justifyContent: 'center',
   alignItems: 'flex-end',
   paddingHorizontal: 15,

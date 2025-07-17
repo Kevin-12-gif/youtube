@@ -15,7 +15,7 @@ export default function ThemeToggleButton() {
       ]}
     >
       <Text style={[styles.text, { color: isDark ? '#fff' : '#000' }]}>
-        {isDark ? '☀️' : '🌙'}
+        {isDark ? 'Light Mode ' : 'Dark Mode'}
       </Text>
     </TouchableOpacity>
   );
@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
   button: {
     alignSelf: 'center',
     marginBottom: 20,
-    paddingVertical: Platform.OS === 'android' ? 12 : 10,
-    paddingHorizontal: 24, // <-- widened button
+    paddingVertical: Platform.OS === 'android' ? 12 : 22,
+    paddingHorizontal: 30, // <-- widened button
     borderRadius: 10,
     elevation: 2, // Android shadow
     shadowColor: '#000', // iOS shadow
