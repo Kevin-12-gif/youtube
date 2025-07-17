@@ -15,8 +15,6 @@ import {
   NavigationProp,
 } from '@react-navigation/native';
 import { RootStackParamList } from './types';
-
-// Import your useTheme hook here
 import { useTheme } from './ThemeContext';
 
 type PlaylistRouteProp = RouteProp<RootStackParamList, 'Playlist'>;
@@ -32,8 +30,6 @@ type Video = {
 export default function PlaylistScreen() {
   const navigation = useNavigation<PlaylistNavProp>();
   const route = useRoute<PlaylistRouteProp>();
-
-  // Use the theme context
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -92,6 +88,17 @@ export default function PlaylistScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+      {/* Top Back Button and Title */}
+      <View style={styles.backWrapper}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={[styles.backButtonText, { color: isDark ? '#fff' : '#000' }]}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000' }]} numberOfLines={1}>
+          {title}
+        </Text>
+      </View>
+
+      {/* Video List */}
       <FlatList
         data={videos}
         keyExtractor={(item) => item.videoId}
@@ -115,7 +122,32 @@ export default function PlaylistScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+  backWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingHorizontal: 12,
+    paddingBottom: 10,
+  },
+  backButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#ccc',
+    marginRight: 10,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    flexShrink: 1,
+  },
   card: {
     marginVertical: 10,
     marginHorizontal: 12,
@@ -130,7 +162,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 16, marginBottom: 10 },
-  backText: { fontSize: 16 },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  backText: {
+    fontSize: 16,
+  },
 });

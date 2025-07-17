@@ -25,9 +25,9 @@ export default function VideoScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Now Playing</Text>
+        <Text style={styles.headerTitle}></Text>
       </View>
 
       {/* Fullscreen Video */}
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   backButton: {
-    color: '#007AFF',
+    color: '#fff',
     fontSize: 16,
     marginRight: 10,
   },
