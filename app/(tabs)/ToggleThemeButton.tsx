@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20,
     paddingVertical: Platform.OS === 'android' ? 12 : 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24, // <-- widened button
     borderRadius: 10,
     elevation: 2, // Android shadow
     shadowColor: '#000', // iOS shadow
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   text: {
-    fontSize: 16,
+    fontSize: 18, // slightly larger for better tap targets
     fontWeight: '600',
   },
 });
