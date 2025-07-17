@@ -15,7 +15,7 @@ export default function ThemeToggleButton() {
       ]}
     >
       <Text style={[styles.text, { color: isDark ? '#fff' : '#000' }]}>
-        {isDark ? '☀ Light Mode' : '🌙 Dark Mode'}
+        {isDark ? 'Light Mode' : 'Dark Mode'}
       </Text>
     </TouchableOpacity>
   );
