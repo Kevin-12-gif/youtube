@@ -46,7 +46,7 @@ export default function PlaylistScreen() {
     );
   }
 
-  const { playlistId, title } = route.params;
+  const { playlistId } = route.params;
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,14 +88,11 @@ export default function PlaylistScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-      {/* Top Back Button and Title */}
+      {/* Top Back Button Only */}
       <View style={styles.backWrapper}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={[styles.backButtonText, { color: isDark ? '#fff' : '#000' }]}>← Back</Text>
+          <Text style={{ color: isDark ? '#000' : 'fff' }}>{'←'}</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000' }]} numberOfLines={1}>
-          {title}
-        </Text>
       </View>
 
       {/* Video List */}
@@ -138,15 +135,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#fff',
     marginRight: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    flexShrink: 1,
   },
   card: {
     marginVertical: 10,
