@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
-    backgroundColor: '#ccc',
+    backgroundColor: '#fff',
     marginRight: 10,
   },
   backButtonText: {
