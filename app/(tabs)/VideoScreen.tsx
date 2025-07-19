@@ -1,11 +1,9 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import React from 'react';
 import {
   Platform,
   SafeAreaView,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -15,23 +13,13 @@ type VideoRouteProp = RouteProp<RootStackParamList, 'Video'>;
 
 export default function VideoScreen() {
   const route = useRoute<VideoRouteProp>();
-  const navigation = useNavigation();
-
   const { videoId } = route.params;
   const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1`;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-       <TouchableOpacity
-        onPress={() => navigation.goBack()}
-         style={{ position: 'absolute', top: 40, left: 20, padding: 10 }}
-         >
-        <Text style={{ color: '#fff', fontSize: 24 }}>←</Text>
-     </TouchableOpacity>
-
-      </View>
+      {/* Optional Header (can leave it empty or remove entirely) */}
+      <View style={styles.header}></View>
 
       {/* Fullscreen Video */}
       {Platform.OS === 'web' ? (
@@ -55,7 +43,7 @@ export default function VideoScreen() {
               height: '100%',
               border: 'none',
             }}
-          ></iframe>
+          />
         </div>
       ) : (
         <WebView
@@ -74,20 +62,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   header: {
     padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#000',
     zIndex: 1,
-  },
-  backButton: {
-    color: '#fff',
-    fontSize: 16,
-    marginRight: 10,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   webview: {
     flex: 1,
