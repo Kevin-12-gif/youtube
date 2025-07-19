@@ -31,7 +31,7 @@ const GAMES_QUERY = gql`
 const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU';
 const CHANNEL_ID = 'UCtlxqyUjGz31UItA-eQJDNg';
 
-const CUSTOM_CHANNEL_ICON = 'https://yourdomain.com/logo.png'; // Replace with your image URL
+const CUSTOM_CHANNEL_ICON = 'https://i.imgur.com/kUP7JIq.png'; // Replace with your image URL
 const CUSTOM_CHANNEL_TITLE = 'PlayTime!'; // Replace with your desired title
 
 interface GamesData {

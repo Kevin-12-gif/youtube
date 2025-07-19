@@ -24,10 +24,13 @@ export default function VideoScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}></Text>
+       <TouchableOpacity
+        onPress={() => navigation.goBack()}
+         style={{ position: 'absolute', top: 40, left: 20, padding: 10 }}
+         >
+        <Text style={{ color: '#fff', fontSize: 24 }}>←</Text>
+     </TouchableOpacity>
+
       </View>
 
       {/* Fullscreen Video */}
