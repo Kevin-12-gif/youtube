@@ -6,7 +6,7 @@ const DONATE_URL = 'https://coff.ee/buildwithstars'; // replace this
 export default function DonateButton() {
   const handlePress = () => {
     Linking.openURL(DONATE_URL).catch(err =>
-      console.error("Failed to open donation link:", err)
+      console.error("Failed to open donation link!:", err)
     );
   };
 
