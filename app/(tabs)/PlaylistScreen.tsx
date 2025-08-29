@@ -1,119 +1,249 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
   ActivityIndicator,
+  Alert,
   Image,
+  Linking,
+  ScrollView,
   StyleSheet,
-} from 'react-native';
-import {
-  useNavigation,
-  useRoute,
-  RouteProp,
-  NavigationProp,
-} from '@react-navigation/native';
-import { RootStackParamList } from './types';
-import { useTheme } from './ThemeContext';
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { gql, useQuery } from "@apollo/client";
 
-type PlaylistRouteProp = RouteProp<RootStackParamList, 'Playlist'>;
-type PlaylistNavProp = NavigationProp<RootStackParamList, 'Playlist'>;
+import DonateButton from "./DonateButton";
+import { useTheme } from "./ThemeContext";
+import { RootStackParamList } from "./types";
 
-type Video = {
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  videoId: string;
-};
-
-export default function PlaylistScreen() {
-  const navigation = useNavigation<PlaylistNavProp>();
-  const route = useRoute<PlaylistRouteProp>();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
-  if (!route.params) {
-    return (
-      <View style={[styles.centered, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-        <Text style={[styles.errorText, { color: isDark ? '#fff' : 'red' }]}>
-          Error: Missing playlist information.
-        </Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={[styles.backText, { color: isDark ? '#0af' : '#007AFF' }]}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
+const GAMES_QUERY = gql`
+  query {
+    games {
+      id
+      title
+      url
+      icon
+    }
   }
+`;
 
-  const { playlistId } = route.params;
+const API_KEY = "AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU";
+const CHANNEL_ID = "UCtlxqyUjGz31UItA-eQJDNg";
 
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
+const CUSTOM_CHANNEL_ICON = "https://i.imgur.com/kUP7JIq.png";
+const CUSTOM_CHANNEL_TITLE = "PlayTime!";
 
-  const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU';
+interface GamesData {
+  games: {
+    id: string;
+    title: string;
+    url?: string;
+    icon?: string;
+  }[];
+}
+
+export default function HomeScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [loadingYouTube, setLoadingYouTube] = useState(true);
+
+  const { loading: loadingGames, error: errorGames, data } =
+    useQuery<GamesData>(GAMES_QUERY);
+
+  const playlistsRef = useRef<ScrollView | null>(null);
+  const gamesRef = useRef<ScrollView | null>(null);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchPlaylists = async () => {
       try {
-        const res = await fetch(
-          `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=25&playlistId=${playlistId}&key=${API_KEY}`
+        const playlistsRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&key=${API_KEY}`
         );
-        const data = await res.json();
-
-        if (!data.items) {
-          throw new Error('No videos found.');
-        }
-
-        const simplified: Video[] = data.items.map((item: any) => ({
-          id: item.id,
-          title: item.snippet.title,
-          thumbnailUrl: item.snippet.thumbnails.medium.url,
-          videoId: item.snippet.resourceId.videoId,
-        }));
-
-        setVideos(simplified);
-      } catch (error) {
-        console.error('Error loading playlist:', error);
+        const playlistsData = await playlistsRes.json();
+        setPlaylists(
+          Array.isArray(playlistsData?.items) ? playlistsData.items : []
+        );
+      } catch (err) {
+        console.error(err);
+        setPlaylists([]);
       } finally {
-        setLoading(false);
+        setLoadingYouTube(false);
       }
     };
 
-    fetchVideos();
-  }, [playlistId]);
+    fetchPlaylists();
+  }, []);
 
-  if (loading)
-    return <ActivityIndicator size="large" style={{ marginTop: 40 }} color={isDark ? '#fff' : '#000'} />;
+  const openGameUrl = (url?: string) => {
+    if (!url) return Alert.alert("Game URL not available.");
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) Linking.openURL(url);
+        else Alert.alert("Cannot open the game URL.");
+      })
+      .catch(() => Alert.alert("Error opening the URL."));
+  };
+
+  const scroll = (
+    ref: React.RefObject<ScrollView | null>,
+    direction: "left" | "right"
+  ) => {
+    if (ref.current) {
+      ref.current.scrollTo({
+        x: direction === "left" ? -200 : 200,
+        animated: true,
+      });
+    }
+  };
+
+  if (loadingYouTube || loadingGames) {
+    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-      {/* Top Back Button Only */}
-      <View style={styles.backWrapper}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={{ color: isDark ? '#000' : 'fff' }}>{'←'}</Text>
-        </TouchableOpacity>
-      </View>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? "#000" : "#fff" },
+      ]}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Channel Header */}
+        <Image source={{ uri: CUSTOM_CHANNEL_ICON }} style={styles.channelLogo} />
+        <Text style={[styles.title, { color: isDark ? "#fff" : "#000" }]}>
+          {CUSTOM_CHANNEL_TITLE}
+        </Text>
 
-      {/* Video List */}
-      <FlatList
-        data={videos}
-        keyExtractor={(item) => item.videoId}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate('Video', {
-                videoId: item.videoId,
-                title: item.title,
-              })
-            }
+        {/* YouTube Playlists */}
+        <Text style={[styles.rowTitle, { color: isDark ? "#fff" : "#000" }]}>
+          YouTube Playlists
+        </Text>
+        <View style={styles.rowContainer}>
+          <View style={styles.arrowWrapper}>
+            <TouchableOpacity
+              onPress={() => scroll(playlistsRef, "left")}
+              style={styles.arrowButton}
+            >
+              <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
+                {"←"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            ref={playlistsRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.rowWrapper}
           >
-            <Image source={{ uri: item.thumbnailUrl }} style={styles.thumbnail} />
-            <Text style={[styles.videoTitle, { color: isDark ? '#fff' : '#000' }]}>{item.title}</Text>
-          </TouchableOpacity>
+            {playlists.map((playlist) => (
+              <View key={playlist.id} style={styles.item}>
+                <TouchableOpacity
+                  style={styles.itemCircle}
+                  onPress={() =>
+                    navigation.navigate("Playlist", {
+                      title: playlist.snippet.title,
+                      playlistId: playlist.id,
+                    })
+                  }
+                >
+                  <Image
+                    source={{ uri: playlist.snippet.thumbnails.medium.url }}
+                    style={styles.itemImage}
+                  />
+                </TouchableOpacity>
+                <Text
+                  style={[styles.itemName, { color: isDark ? "#fff" : "#000" }]}
+                  numberOfLines={1}
+                >
+                  {playlist.snippet.title}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+
+          <View style={styles.arrowWrapper}>
+            <TouchableOpacity
+              onPress={() => scroll(playlistsRef, "right")}
+              style={styles.arrowButton}
+            >
+              <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
+                {"→"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Games */}
+        <Text style={[styles.rowTitle, { color: isDark ? "#fff" : "#000" }]}>
+          Games
+        </Text>
+        {errorGames ? (
+          <Text style={{ textAlign: "center", color: "red" }}>
+            Failed to load games.
+          </Text>
+        ) : (
+          <View style={styles.rowContainer}>
+            <View style={styles.arrowWrapper}>
+              <TouchableOpacity
+                onPress={() => scroll(gamesRef, "left")}
+                style={styles.arrowButton}
+              >
+                <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
+                  {"←"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              ref={gamesRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.rowWrapper}
+            >
+              {(data?.games ?? []).map((game) => (
+                <View key={game.id} style={styles.item}>
+                  <TouchableOpacity
+                    style={styles.itemCircle}
+                    onPress={() => openGameUrl(game.url)}
+                  >
+                    <Image
+                      source={{ uri: game.icon || undefined }}
+                      style={styles.itemImage}
+                    />
+                  </TouchableOpacity>
+                  <Text
+                    style={[styles.itemName, { color: isDark ? "#fff" : "#000" }]}
+                    numberOfLines={1}
+                  >
+                    {game.title}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+
+            <View style={styles.arrowWrapper}>
+              <TouchableOpacity
+                onPress={() => scroll(gamesRef, "right")}
+                style={styles.arrowButton}
+              >
+                <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
+                  {"→"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
-      />
+
+        {/* Donate */}
+        <View style={styles.donateWrapper}>
+          <DonateButton />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -122,44 +252,72 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  backWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+  scrollContent: {
+    padding: 20,
   },
-  backButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#fff',
-    marginRight: 10,
-  },
-  card: {
-    marginVertical: 10,
-    marginHorizontal: 12,
-  },
-  thumbnail: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  videoTitle: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
+  channelLogo: {
+    width: 300,
+    height: 300,
+    borderRadius: 20,
+    alignSelf: "center",
     marginBottom: 10,
   },
-  backText: {
-    fontSize: 16,
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  rowTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginVertical: 10,
+    textAlign: "center",
+  },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rowWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 10,
+  },
+  item: {
+    alignItems: "center",
+    marginRight: 15,
+    width: 100,
+  },
+  itemCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    overflow: "hidden",
+    backgroundColor: "#ccc",
+    borderWidth: 5,
+    borderColor: "#8c8a8aff",
+  },
+  itemImage: {
+    width: "100%",
+    height: "100%",
+  },
+  itemName: {
+    marginTop: 6,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  donateWrapper: {
+    marginTop: 20,
+  },
+  arrowWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  arrowButton: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "rgba(200,200,200,0.3)",
+    marginHorizontal: 4,
   },
 });
