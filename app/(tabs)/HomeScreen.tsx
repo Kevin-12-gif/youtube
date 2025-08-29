@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { gql, useQuery } from "@apollo/client";
+import Icon from "react-native-vector-icons/Ionicons"; // vector icons
 
 import DonateButton from "./DonateButton";
 import { useTheme } from "./ThemeContext";
@@ -121,9 +122,10 @@ export default function HomeScreen() {
         </Text>
         <View style={styles.rowContainer}>
           <TouchableOpacity
+            style={styles.arrowButton}
             onPress={() => scroll(playlistsRef, "left", playlistsScrollX)}
           >
-            <Text style={[styles.arrowText, { color: arrowColor }]}>{'<'}</Text>
+            <Icon name="chevron-back" size={28} color={arrowColor} />
           </TouchableOpacity>
 
           <ScrollView
@@ -161,9 +163,10 @@ export default function HomeScreen() {
           </ScrollView>
 
           <TouchableOpacity
+            style={styles.arrowButton}
             onPress={() => scroll(playlistsRef, "right", playlistsScrollX)}
           >
-            <Text style={[styles.arrowText, { color: arrowColor }]}>{'>'}</Text>
+            <Icon name="chevron-forward" size={28} color={arrowColor} />
           </TouchableOpacity>
         </View>
 
@@ -174,9 +177,10 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.rowContainer}>
             <TouchableOpacity
+              style={styles.arrowButton}
               onPress={() => scroll(gamesRef, "left", gamesScrollX)}
             >
-              <Text style={[styles.arrowText, { color: arrowColor }]}>{'<'}</Text>
+              <Icon name="chevron-back" size={28} color={arrowColor} />
             </TouchableOpacity>
 
             <ScrollView
@@ -200,9 +204,10 @@ export default function HomeScreen() {
             </ScrollView>
 
             <TouchableOpacity
+              style={styles.arrowButton}
               onPress={() => scroll(gamesRef, "right", gamesScrollX)}
             >
-              <Text style={[styles.arrowText, { color: arrowColor }]}>{'>'}</Text>
+              <Icon name="chevron-forward" size={28} color={arrowColor} />
             </TouchableOpacity>
           </View>
         )}
@@ -229,5 +234,12 @@ const styles = StyleSheet.create({
   itemImage: { width: "100%", height: "100%" },
   itemName: { marginTop: 6, fontSize: 14, textAlign: "center" },
   donateWrapper: { marginTop: 20 },
-  arrowText: { fontSize: 28, paddingHorizontal: 8 },
+  arrowButton: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "rgba(200,200,200,0.3)",
+    marginHorizontal: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
