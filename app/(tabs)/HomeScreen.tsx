@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { gql, useQuery } from "@apollo/client";
+import Icon from "react-native-vector-icons/Ionicons"; // vector icons
 
 import DonateButton from "./DonateButton";
 import { useTheme } from "./ThemeContext";
@@ -61,7 +62,16 @@ export default function HomeScreen() {
   const [playlistsScrollX, setPlaylistsScrollX] = useState(0);
   const [gamesScrollX, setGamesScrollX] = useState(0);
 
-  const screenWidth = Dimensions.get("window").width;
+  const scroll = (
+    ref: React.RefObject<ScrollView>,
+    direction: "left" | "right",
+    currentX: number
+  ) => {
+    if (!ref.current) return;
+    const offset = 200;
+    const newX = direction === "left" ? Math.max(0, currentX - offset) : currentX + offset;
+    ref.current.scrollTo({ x: newX, animated: true });
+  };
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -91,20 +101,11 @@ export default function HomeScreen() {
       .catch(() => Alert.alert("Error opening the URL."));
   };
 
-  const scroll = (
-    ref: React.RefObject<ScrollView>,
-    direction: "left" | "right",
-    currentX: number
-  ) => {
-    if (!ref.current) return;
-    const offset = 200; // scroll amount
-    const newX = direction === "left" ? Math.max(0, currentX - offset) : currentX + offset;
-    ref.current.scrollTo({ x: newX, animated: true });
-  };
-
   if (loadingYouTube || loadingGames) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
+
+  const arrowColor = isDark ? "#fff" : "#000";
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
@@ -124,7 +125,7 @@ export default function HomeScreen() {
             style={styles.arrowButton}
             onPress={() => scroll(playlistsRef, "left", playlistsScrollX)}
           >
-            <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 24 }}>{"<"}</Text>
+            <Icon name="chevron-back" size={28} color={arrowColor} />
           </TouchableOpacity>
 
           <ScrollView
@@ -165,7 +166,7 @@ export default function HomeScreen() {
             style={styles.arrowButton}
             onPress={() => scroll(playlistsRef, "right", playlistsScrollX)}
           >
-            <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 24 }}>{">"}</Text>
+            <Icon name="chevron-forward" size={28} color={arrowColor} />
           </TouchableOpacity>
         </View>
 
@@ -179,7 +180,7 @@ export default function HomeScreen() {
               style={styles.arrowButton}
               onPress={() => scroll(gamesRef, "left", gamesScrollX)}
             >
-              <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 24 }}>{"<"}</Text>
+              <Icon name="chevron-back" size={28} color={arrowColor} />
             </TouchableOpacity>
 
             <ScrollView
@@ -206,7 +207,7 @@ export default function HomeScreen() {
               style={styles.arrowButton}
               onPress={() => scroll(gamesRef, "right", gamesScrollX)}
             >
-              <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 24 }}>{">"}</Text>
+              <Icon name="chevron-forward" size={28} color={arrowColor} />
             </TouchableOpacity>
           </View>
         )}
