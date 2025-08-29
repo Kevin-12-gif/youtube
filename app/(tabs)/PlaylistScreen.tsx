@@ -54,8 +54,8 @@ export default function HomeScreen() {
   const { loading: loadingGames, error: errorGames, data } =
     useQuery<GamesData>(GAMES_QUERY);
 
-  const playlistsRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
-  const gamesRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
+  const playlistsRef = useRef<ScrollView>(null);
+  const gamesRef = useRef<ScrollView>(null);
 
   const [playlistsScrollX, setPlaylistsScrollX] = useState(0);
   const [gamesScrollX, setGamesScrollX] = useState(0);
@@ -92,7 +92,7 @@ export default function HomeScreen() {
   };
 
   const scroll = (
-    ref: React.RefObject<ScrollView>,
+    ref: React.RefObject<ScrollView | null>,
     direction: "left" | "right",
     currentX: number
   ) => {
@@ -133,7 +133,7 @@ export default function HomeScreen() {
               style={styles.arrowButton}
             >
               <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
-                {"←"}
+                {"<"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -180,7 +180,7 @@ export default function HomeScreen() {
               style={styles.arrowButton}
             >
               <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
-                {"→"}
+                {">"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -202,7 +202,7 @@ export default function HomeScreen() {
                 style={styles.arrowButton}
               >
                 <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
-                  {"←"}
+                  {"<"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -242,7 +242,7 @@ export default function HomeScreen() {
                 style={styles.arrowButton}
               >
                 <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
-                  {"→"}
+                  {">"}
                 </Text>
               </TouchableOpacity>
             </View>
