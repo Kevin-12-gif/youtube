@@ -54,8 +54,11 @@ export default function HomeScreen() {
   const { loading: loadingGames, error: errorGames, data } =
     useQuery<GamesData>(GAMES_QUERY);
 
-  const playlistsRef = useRef<ScrollView | null>(null);
-  const gamesRef = useRef<ScrollView | null>(null);
+  const playlistsRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
+  const gamesRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
+
+  const [playlistsScrollX, setPlaylistsScrollX] = useState(0);
+  const [gamesScrollX, setGamesScrollX] = useState(0);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -89,12 +92,13 @@ export default function HomeScreen() {
   };
 
   const scroll = (
-    ref: React.RefObject<ScrollView | null>,
-    direction: "left" | "right"
+    ref: React.RefObject<ScrollView>,
+    direction: "left" | "right",
+    currentX: number
   ) => {
     if (ref.current) {
       ref.current.scrollTo({
-        x: direction === "left" ? -200 : 200,
+        x: direction === "left" ? currentX - 200 : currentX + 200,
         animated: true,
       });
     }
@@ -125,7 +129,7 @@ export default function HomeScreen() {
         <View style={styles.rowContainer}>
           <View style={styles.arrowWrapper}>
             <TouchableOpacity
-              onPress={() => scroll(playlistsRef, "left")}
+              onPress={() => scroll(playlistsRef, "left", playlistsScrollX)}
               style={styles.arrowButton}
             >
               <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
@@ -139,6 +143,10 @@ export default function HomeScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.rowWrapper}
+            onScroll={(e) =>
+              setPlaylistsScrollX(e.nativeEvent.contentOffset.x)
+            }
+            scrollEventThrottle={16}
           >
             {playlists.map((playlist) => (
               <View key={playlist.id} style={styles.item}>
@@ -168,7 +176,7 @@ export default function HomeScreen() {
 
           <View style={styles.arrowWrapper}>
             <TouchableOpacity
-              onPress={() => scroll(playlistsRef, "right")}
+              onPress={() => scroll(playlistsRef, "right", playlistsScrollX)}
               style={styles.arrowButton}
             >
               <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
@@ -190,7 +198,7 @@ export default function HomeScreen() {
           <View style={styles.rowContainer}>
             <View style={styles.arrowWrapper}>
               <TouchableOpacity
-                onPress={() => scroll(gamesRef, "left")}
+                onPress={() => scroll(gamesRef, "left", gamesScrollX)}
                 style={styles.arrowButton}
               >
                 <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
@@ -204,6 +212,8 @@ export default function HomeScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.rowWrapper}
+              onScroll={(e) => setGamesScrollX(e.nativeEvent.contentOffset.x)}
+              scrollEventThrottle={16}
             >
               {(data?.games ?? []).map((game) => (
                 <View key={game.id} style={styles.item}>
@@ -228,7 +238,7 @@ export default function HomeScreen() {
 
             <View style={styles.arrowWrapper}>
               <TouchableOpacity
-                onPress={() => scroll(gamesRef, "right")}
+                onPress={() => scroll(gamesRef, "right", gamesScrollX)}
                 style={styles.arrowButton}
               >
                 <Text style={{ color: isDark ? "#000" : "#fff", fontSize: 20 }}>
