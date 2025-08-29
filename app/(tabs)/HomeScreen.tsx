@@ -1,4 +1,4 @@
- import React, { useEffect, useState } from 'react';
+ import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -9,13 +9,14 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { gql, useQuery } from '@apollo/client';
+} from "react-native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { gql, useQuery } from "@apollo/client";
+import { Ionicons } from "@expo/vector-icons";
 
-import DonateButton from './DonateButton';
-import { useTheme } from './ThemeContext';
-import { RootStackParamList } from './types';
+import DonateButton from "./DonateButton";
+import { useTheme } from "./ThemeContext";
+import { RootStackParamList } from "./types";
 
 const GAMES_QUERY = gql`
   query {
@@ -28,11 +29,11 @@ const GAMES_QUERY = gql`
   }
 `;
 
-const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU';
-const CHANNEL_ID = 'UCtlxqyUjGz31UItA-eQJDNg';
+const API_KEY = "AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU";
+const CHANNEL_ID = "UCtlxqyUjGz31UItA-eQJDNg";
 
-const CUSTOM_CHANNEL_ICON = 'https://i.imgur.com/kUP7JIq.png'; // Replace with your image URL
-const CUSTOM_CHANNEL_TITLE = 'PlayTime!'; // Replace with your desired title
+const CUSTOM_CHANNEL_ICON = "https://i.imgur.com/kUP7JIq.png";
+const CUSTOM_CHANNEL_TITLE = "PlayTime!";
 
 interface GamesData {
   games: {
@@ -46,12 +47,16 @@ interface GamesData {
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [loadingYouTube, setLoadingYouTube] = useState(true);
 
-  const { loading: loadingGames, error: errorGames, data } = useQuery<GamesData>(GAMES_QUERY);
+  const { loading: loadingGames, error: errorGames, data } =
+    useQuery<GamesData>(GAMES_QUERY);
+
+  const playlistsRef = useRef<ScrollView>(null);
+  const gamesRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -60,7 +65,9 @@ export default function HomeScreen() {
           `https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&key=${API_KEY}`
         );
         const playlistsData = await playlistsRes.json();
-        setPlaylists(Array.isArray(playlistsData?.items) ? playlistsData.items : []);
+        setPlaylists(
+          Array.isArray(playlistsData?.items) ? playlistsData.items : []
+        );
       } catch (err) {
         console.error(err);
         setPlaylists([]); // fallback
@@ -73,68 +80,123 @@ export default function HomeScreen() {
   }, []);
 
   const openGameUrl = (url?: string) => {
-    if (!url) return Alert.alert('Game URL not available.');
+    if (!url) return Alert.alert("Game URL not available.");
     Linking.canOpenURL(url)
       .then((supported) => {
         if (supported) Linking.openURL(url);
-        else Alert.alert('Cannot open the game URL.');
+        else Alert.alert("Cannot open the game URL.");
       })
-      .catch(() => Alert.alert('Error opening the URL.'));
+      .catch(() => Alert.alert("Error opening the URL."));
   };
+
+  const scroll = (
+      ref: React.RefObject<ScrollView | null>,
+      direction: "left" | "right"
+    ) => {
+      if (ref.current) {
+        ref.current.scrollTo({
+          x: direction === "left" ? -200 : 200,
+          animated: true,
+        });
+      }
+    };
 
   if (loadingYouTube || loadingGames) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? "#000" : "#fff" },
+      ]}
+    >
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Channel Header */}
         <Image source={{ uri: CUSTOM_CHANNEL_ICON }} style={styles.channelLogo} />
-        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>
+        <Text style={[styles.title, { color: isDark ? "#fff" : "#000" }]}>
           {CUSTOM_CHANNEL_TITLE}
         </Text>
 
-        <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>
+        {/* Playlists with arrows */}
+        <Text style={[styles.rowTitle, { color: isDark ? "#fff" : "#000" }]}>
           YouTube Playlists
         </Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.rowWrapper}
-        >
-          {Array.isArray(playlists) && playlists.map((playlist) => (
-            <View key={playlist.id} style={styles.item}>
-              <TouchableOpacity
-                style={styles.itemCircle}
-                onPress={() =>
-                  navigation.navigate('Playlist', {
-                    title: playlist.snippet.title,
-                    playlistId: playlist.id,
-                  })
-                }
-              >
-                <Image
-                  source={{ uri: playlist.snippet.thumbnails.medium.url }}
-                  style={styles.itemImage}
-                />
-              </TouchableOpacity>
-              <Text
-                style={[styles.itemName, { color: isDark ? '#fff' : '#000' }]}
-                numberOfLines={1}
-              >
-                {playlist.snippet.title}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
+        <View style={styles.rowContainer}>
+          <TouchableOpacity
+            style={styles.arrow}
+            onPress={() => scroll(playlistsRef, "left")}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={28}
+              color={isDark ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
 
-        <Text style={[styles.rowTitle, { color: isDark ? '#fff' : '#000' }]}>Games</Text>
-        {errorGames ? (
-          <Text style={{ textAlign: 'center', color: 'red' }}>
-            Failed to load games.
-          </Text>
-        ) : (
           <ScrollView
+            ref={playlistsRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.rowWrapper}
+          >
+            {playlists.map((playlist) => (
+              <View key={playlist.id} style={styles.item}>
+                <TouchableOpacity
+                  style={styles.itemCircle}
+                  onPress={() =>
+                    navigation.navigate("Playlist", {
+                      title: playlist.snippet.title,
+                      playlistId: playlist.id,
+                    })
+                  }
+                >
+                  <Image
+                    source={{ uri: playlist.snippet.thumbnails.medium.url }}
+                    style={styles.itemImage}
+                  />
+                </TouchableOpacity>
+                <Text
+                  style={[styles.itemName, { color: isDark ? "#fff" : "#000" }]}
+                  numberOfLines={1}
+                >
+                  {playlist.snippet.title}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={styles.arrow}
+            onPress={() => scroll(playlistsRef, "right")}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={28}
+              color={isDark ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Games with arrows */}
+        <Text style={[styles.rowTitle, { color: isDark ? "#fff" : "#000" }]}>
+          Games
+        </Text>
+        <View style={styles.rowContainer}>
+          <TouchableOpacity
+            style={styles.arrow}
+            onPress={() => scroll(gamesRef, "left")}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={28}
+              color={isDark ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+
+          <ScrollView
+            ref={gamesRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.rowWrapper}
@@ -151,7 +213,7 @@ export default function HomeScreen() {
                   />
                 </TouchableOpacity>
                 <Text
-                  style={[styles.itemName, { color: isDark ? '#fff' : '#000' }]}
+                  style={[styles.itemName, { color: isDark ? "#fff" : "#000" }]}
                   numberOfLines={1}
                 >
                   {game.title}
@@ -159,8 +221,20 @@ export default function HomeScreen() {
               </View>
             ))}
           </ScrollView>
-        )}
 
+          <TouchableOpacity
+            style={styles.arrow}
+            onPress={() => scroll(gamesRef, "right")}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={28}
+              color={isDark ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Donate */}
         <View style={styles.donateWrapper}>
           <DonateButton />
         </View>
@@ -180,29 +254,33 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 20,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 10,
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 20,
   },
   rowTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
-    textAlign: 'center',
+    textAlign: "center",
+  },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   rowWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     paddingVertical: 10,
   },
   item: {
-    alignItems: 'center',
+    alignItems: "center",
     marginRight: 15,
     width: 100,
   },
@@ -210,21 +288,27 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    overflow: 'hidden',
-    backgroundColor: '#ccc',
+    overflow: "hidden",
+    backgroundColor: "#ccc",
     borderWidth: 5,
-    borderColor: '#8c8a8aff',
+    borderColor: "#8c8a8aff",
   },
   itemImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   itemName: {
     marginTop: 6,
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   donateWrapper: {
     marginTop: 20,
+  },
+  arrow: {
+    padding: 6,
+    backgroundColor: "rgba(200,200,200,0.3)",
+    borderRadius: 20,
+    marginHorizontal: 4,
   },
 });
