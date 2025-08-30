@@ -1,48 +1,24 @@
- import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
-  Linking,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { gql, useQuery } from "@apollo/client";
 
 import DonateButton from "./DonateButton";
 import { useTheme } from "./ThemeContext";
 import { RootStackParamList } from "./types";
-
-const GAMES_QUERY = gql`
-  query {
-    games {
-      id
-      title
-      url
-      icon
-    }
-  }
-`;
 
 const API_KEY = "AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU";
 const CHANNEL_ID = "UCtlxqyUjGz31UItA-eQJDNg";
 
 const CUSTOM_CHANNEL_ICON = "https://i.imgur.com/kUP7JIq.png";
 const CUSTOM_CHANNEL_TITLE = "PlayTime!";
-
-interface GamesData {
-  games: {
-    id: string;
-    title: string;
-    url?: string;
-    icon?: string;
-  }[];
-}
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -52,14 +28,8 @@ export default function HomeScreen() {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [loadingYouTube, setLoadingYouTube] = useState(true);
 
-  const { loading: loadingGames, error: errorGames, data } =
-    useQuery<GamesData>(GAMES_QUERY);
-
   const playlistsRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
-  const gamesRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>;
-
   const [playlistsScrollX, setPlaylistsScrollX] = useState(0);
-  const [gamesScrollX, setGamesScrollX] = useState(0);
 
   const scroll = (
     ref: React.RefObject<ScrollView>,
@@ -90,17 +60,7 @@ export default function HomeScreen() {
     fetchPlaylists();
   }, []);
 
-  const openGameUrl = (url?: string) => {
-    if (!url) return Alert.alert("Game URL not available.");
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) Linking.openURL(url);
-        else Alert.alert("Cannot open the game URL.");
-      })
-      .catch(() => Alert.alert("Error opening the URL."));
-  };
-
-  if (loadingYouTube || loadingGames) {
+  if (loadingYouTube) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
 
@@ -167,45 +127,28 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Games */}
+        {/* Games (Local Screens) */}
         <Text style={[styles.rowTitle, { color: isDark ? "#fff" : "#000" }]}>Games</Text>
-        {errorGames ? (
-          <Text style={{ textAlign: "center", color: "red" }}>Failed to load games.</Text>
-        ) : (
-          <View style={styles.rowContainer}>
+        <View style={styles.gamesWrapper}>
+          {[
+            { name: "Bug Swat Defense", screen: "bugswatdefense", gameUrl: "bugswatdefense" },
+            { name: "Color Crush", screen: "colorcrush", gameUrl: "colorcrush" },
+            { name: "Neon 2048", screen: "neon2048", gameUrl: "neon2048" },
+            { name: "Neon Pong", screen: "neonpong", gameUrl: "neonpong" },
+            { name: "Neon Snake", screen: "neonsnake", gameUrl: "neonsnake" },
+            { name: "Neural Sync", screen: "neuralsync", gameUrl: "neuralsync" },
+          ].map((game) => (
             <TouchableOpacity
-              onPress={() => scroll(gamesRef, "left", gamesScrollX)}
+              key={game.screen}
+              style={styles.gameButton}
+              onPress={() =>
+                navigation.navigate("Game", { gameUrl: game.gameUrl })
+              }
             >
-              <Text style={[styles.arrowText, { color: arrowColor }]}>{'<'}</Text>
+              <Text style={styles.gameButtonText}>{game.name}</Text>
             </TouchableOpacity>
-
-            <ScrollView
-              ref={gamesRef}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.rowWrapper}
-              onScroll={(e) => setGamesScrollX(e.nativeEvent.contentOffset.x)}
-              scrollEventThrottle={16}
-            >
-              {(data?.games ?? []).map((game) => (
-                <View key={game.id} style={styles.item}>
-                  <TouchableOpacity style={styles.itemCircle} onPress={() => openGameUrl(game.url)}>
-                    <Image source={{ uri: game.icon || undefined }} style={styles.itemImage} />
-                  </TouchableOpacity>
-                  <Text style={[styles.itemName, { color: isDark ? "#fff" : "#000" }]} numberOfLines={1}>
-                    {game.title}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              onPress={() => scroll(gamesRef, "right", gamesScrollX)}
-            >
-              <Text style={[styles.arrowText, { color: arrowColor }]}>{'>'}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          ))}
+        </View>
 
         {/* Donate */}
         <View style={styles.donateWrapper}>
@@ -230,4 +173,7 @@ const styles = StyleSheet.create({
   itemName: { marginTop: 6, fontSize: 14, textAlign: "center" },
   donateWrapper: { marginTop: 20 },
   arrowText: { fontSize: 28, paddingHorizontal: 8 },
+  gamesWrapper: { marginTop: 10, gap: 10 },
+  gameButton: { backgroundColor: "#007bff", padding: 15, borderRadius: 10 },
+  gameButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
 });
