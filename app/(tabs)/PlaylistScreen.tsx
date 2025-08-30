@@ -51,7 +51,7 @@ export default function PlaylistScreen() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_KEY = 'AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU';
+  const API_KEY = 'AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo';
 
   useEffect(() => {
     const fetchVideos = async () => {

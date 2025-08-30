@@ -29,7 +29,7 @@ const GAMES_QUERY = gql`
   }
 `;
 
-const API_KEY = "AIzaSyD1QZ4sjHOqFE40096MDCKEw1Kum6k2ZhU";
+const API_KEY = "AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo";
 const CHANNEL_ID = "UCtlxqyUjGz31UItA-eQJDNg";
 
 const CUSTOM_CHANNEL_ICON = "https://i.imgur.com/kUP7JIq.png";
