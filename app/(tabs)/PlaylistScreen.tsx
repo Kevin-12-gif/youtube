@@ -47,11 +47,10 @@ export default function PlaylistScreen() {
   }
 
   const { playlistId } = route.params;
-
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_KEY = 'AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo';
+  const API_KEY = 'YOUR_API_KEY';
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -61,9 +60,7 @@ export default function PlaylistScreen() {
         );
         const data = await res.json();
 
-        if (!data.items) {
-          throw new Error('No videos found.');
-        }
+        if (!data.items) throw new Error('No videos found.');
 
         const simplified: Video[] = data.items.map((item: any) => ({
           id: item.id,
@@ -83,15 +80,22 @@ export default function PlaylistScreen() {
     fetchVideos();
   }, [playlistId]);
 
-  if (loading)
-    return <ActivityIndicator size="large" style={{ marginTop: 40 }} color={isDark ? '#fff' : '#000'} />;
+  if (loading) {
+    return (
+      <ActivityIndicator
+        size="large"
+        style={{ marginTop: 40 }}
+        color={isDark ? '#fff' : '#000'}
+      />
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
       {/* Top Back Button Only */}
       <View style={styles.backWrapper}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={{ color: isDark ? '#000' : 'fff' }}>{'←'}</Text>
+          <Text style={{ color: isDark ? '#000' : '#fff' }}>{'←'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -105,7 +109,7 @@ export default function PlaylistScreen() {
             onPress={() =>
               navigation.navigate('Video', {
                 videoId: item.videoId,
-                title: item.title,
+                title: item.title, // ✅ now valid
               })
             }
           >
@@ -119,9 +123,7 @@ export default function PlaylistScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   backWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -150,16 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  backText: {
-    fontSize: 16,
-  },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16, marginBottom: 10 },
+  backText: { fontSize: 16 },
 });
