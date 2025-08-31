@@ -51,7 +51,8 @@ export default function PlaylistScreen() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_KEY = '';
+  // ✅ Your API key inserted here
+  const API_KEY = 'AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo';
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -65,22 +66,26 @@ export default function PlaylistScreen() {
           throw new Error('No videos found.');
         }
 
+        console.log("Raw API response:", data.items);
+
         const simplified: Video[] = data.items
           .map((item: any) => {
             const snippet = item.snippet;
 
             if (!snippet || !snippet.resourceId?.videoId) {
-              // skip deleted/private videos
+              console.warn("Skipping invalid item:", item);
               return null;
             }
+
+            const thumbnailUrl =
+              snippet.thumbnails?.medium?.url ??
+              snippet.thumbnails?.default?.url ??
+              "https://via.placeholder.com/200x120?text=No+Thumbnail";
 
             return {
               id: item.id,
               title: snippet.title ?? "No title",
-              thumbnailUrl:
-                snippet.thumbnails?.medium?.url ??
-                snippet.thumbnails?.default?.url ??
-                "https://via.placeholder.com/200x120?text=No+Thumbnail",
+              thumbnailUrl,
               videoId: snippet.resourceId.videoId,
             };
           })
