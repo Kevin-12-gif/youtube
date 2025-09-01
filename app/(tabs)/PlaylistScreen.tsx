@@ -51,7 +51,7 @@ export default function PlaylistScreen() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Your API key inserted here
+  // ✅ Your API key
   const API_KEY = 'AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo';
 
   useEffect(() => {
@@ -62,11 +62,11 @@ export default function PlaylistScreen() {
         );
         const data = await res.json();
 
+        console.log("API response for playlist:", playlistId, data);
+
         if (!data.items) {
           throw new Error('No videos found.');
         }
-
-        console.log("Raw API response:", data.items);
 
         const simplified: Video[] = data.items
           .map((item: any) => {
@@ -102,14 +102,29 @@ export default function PlaylistScreen() {
     fetchVideos();
   }, [playlistId]);
 
-  if (loading)
+  if (loading) {
     return (
-      <ActivityIndicator
-        size="large"
-        style={{ marginTop: 40 }}
-        color={isDark ? '#fff' : '#000'}
-      />
+      <View style={[styles.centered, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+        <Text style={{ marginTop: 10, color: isDark ? '#fff' : '#000', fontSize: 16 }}>
+          Loading...
+        </Text>
+      </View>
     );
+  }
+
+  if (!loading && videos.length === 0) {
+    return (
+      <View style={[styles.centered, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 16 }}>
+          This playlist has no public videos.
+        </Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 10 }}>
+          <Text style={{ color: isDark ? '#0af' : '#007AFF' }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
