@@ -219,7 +219,7 @@ export function SnakeGame({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("Snake");
     }, [setTrack])
   );
 

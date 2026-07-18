@@ -435,7 +435,7 @@ export function DrawingCanvas({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("MorningMood");
     }, [setTrack])
   );
 

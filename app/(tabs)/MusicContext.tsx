@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Audio } from 'expo-av';
 
-type TrackName = 'RelaxedScene' | 'CosmicStriker';
+type TrackName = 'RelaxedScene' | 'CosmicStriker' | 'MorningMood' | 'Snake';
 
 interface MusicContextType {
   currentTrack: TrackName | null;
@@ -20,6 +20,8 @@ const MusicContext = createContext<MusicContextType>({
 const TRACKS: Record<TrackName, any> = {
   RelaxedScene: require('../../assets/audio/RelaxedScene.mp3'),
   CosmicStriker: require('../../assets/audio/CosmicStriker.mp3'),
+  MorningMood: require('../../assets/audio/MorningMood.mp3'),
+  Snake: require('../../assets/audio/Snake.mp3'),
 };
 
 export const MusicProvider = ({ children }: { children: React.ReactNode }) => {

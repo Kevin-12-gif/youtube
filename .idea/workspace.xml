@@ -4,22 +4,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0ca16bfc-0855-4552-b62e-16fe1c18eb24" name="Changes" comment="Added games, removed old Oddball Replit Backends (Dead), and beter UX and UI.">
-      <change afterPath="$PROJECT_DIR$/app/(tabs)/MusicContext.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(tabs)/MuteButton.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/HomeScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/HomeScreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/PlaylistScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/PlaylistScreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/VideoScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/VideoScreen.tsx" afterDir="false" />
+    <list default="true" id="0ca16bfc-0855-4552-b62e-16fe1c18eb24" name="Changes" comment="Added music and fixed errors.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/MusicContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/MusicContext.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/games/CanvasGame.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/CanvasGame.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/games/CosmicStriker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/CosmicStriker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/games/Game2048.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/Game2048.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/games/MemoryMatch.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/MemoryMatch.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/games/Pong.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/Pong.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/games/Snake.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/games/Snake.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,13 +109,22 @@
       <option name="project" value="LOCAL" />
       <updated>1784396478077</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added music and fixed errors.">
+      <option name="closed" value="true" />
+      <created>1784400704009</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784400704009</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Redesigned UI" />
     <MESSAGE value="Redesigned UI and fixed cloudflare pages issues (Testing)" />
     <MESSAGE value="Added games, removed old Oddball Replit Backends (Dead), and beter UX and UI." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added games, removed old Oddball Replit Backends (Dead), and beter UX and UI." />
+    <MESSAGE value="Added music and fixed errors." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added music and fixed errors." />
   </component>
 </project>
