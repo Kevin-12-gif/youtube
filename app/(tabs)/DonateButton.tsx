@@ -34,7 +34,7 @@ export default function DonateButton() {
           style={styles.button}
         >
           <Ionicons name="cafe" size={18} color="#1a1a1a" style={{ marginRight: 8 }} />
-          <Text style={styles.text}>Donate!</Text>
+          <Text style={styles.text}>Buy us a Coffee!</Text>
         </LinearGradient>
       </TouchableOpacity>
     </Animated.View>
