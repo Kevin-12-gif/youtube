@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import {
   useFonts,
   Inter_400Regular,
@@ -14,6 +13,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import HomeScreen from './HomeScreen';
 import PlaylistScreen from './PlaylistScreen';
 import VideoScreen from './VideoScreen';
+import Game2048 from './games/Game2048';
+import Snake from './games/Snake';
+import MemoryMatch from './games/MemoryMatch';
+import CanvasGame from './games/CanvasGame';
+import Pong from './games/Pong';
+import CosmicStriker from './games/CosmicStriker';
 import { RootStackParamList } from './types';
 
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -37,6 +42,12 @@ function MainNavigator() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Playlist" component={PlaylistScreen} />
       <Stack.Screen name="Video" component={VideoScreen} />
+      <Stack.Screen name="Game2048" component={Game2048} />
+      <Stack.Screen name="Snake" component={Snake} />
+      <Stack.Screen name="MemoryMatch" component={MemoryMatch} />
+      <Stack.Screen name="CanvasGame" component={CanvasGame} />
+      <Stack.Screen name="Pong" component={Pong} />
+      <Stack.Screen name="CosmicStriker" component={CosmicStriker} />
     </Stack.Navigator>
   );
 }
@@ -60,22 +71,15 @@ export default function App() {
   }
 
   return (
-    <ApolloProvider
-      client={new ApolloClient({
-        uri: 'https://oddball-alarmed-translation-hamsaaalasadi.replit.app/graphql',
-        cache: new InMemoryCache(),
-      })}
-    >
-      <ThemeProvider>
-        {Platform.OS === 'web' && (
-          <style dangerouslySetInnerHTML={{ __html: `
-            html, body, #root {
-              font-family: 'Inter_400Regular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            }
-          `}} />
-        )}
-        <MainNavigator />
-      </ThemeProvider>
-    </ApolloProvider>
+    <ThemeProvider>
+      {Platform.OS === 'web' && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          html, body, #root {
+            font-family: 'Inter_400Regular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          }
+        `}} />
+      )}
+      <MainNavigator />
+    </ThemeProvider>
   );
 }

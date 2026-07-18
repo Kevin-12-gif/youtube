@@ -12,37 +12,30 @@ import {
   View,
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { gql, useQuery } from "@apollo/client";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import DonateButton from "./DonateButton";
 import { useTheme } from "./ThemeContext";
 import { RootStackParamList } from "./types";
 
-const GAMES_QUERY = gql`
-  query {
-    games {
-      id
-      title
-      url
-      icon
-    }
-  }
-`;
-
 const API_KEY = "AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo";
 const CHANNEL_ID = "UCtlxqyUjGz31UItA-eQJDNg";
 const CUSTOM_CHANNEL_TITLE = "PlayTime!";
-
-interface GamesData {
-  games: { id: string; title: string; url?: string; icon?: string }[];
-}
 
 interface Playlist {
   id: string;
   snippet: { title: string; thumbnails: { medium: { url: string } } };
 }
+
+const LOCAL_GAMES = [
+  { id: '2048', title: '2048', screen: 'Game2048', icon: 'grid-outline', iconColor: '#FFC107', bgColor: '#FFF8E1' },
+  { id: 'snake', title: 'Snake', screen: 'Snake', icon: 'snake', iconColor: '#4CAF50', bgColor: '#E8F5E9' },
+  { id: 'memory', title: 'Memory Match', screen: 'MemoryMatch', icon: 'apps-outline', iconColor: '#2196F3', bgColor: '#E3F2FD' },
+  { id: 'canvas', title: 'Canvas', screen: 'CanvasGame', icon: 'brush-outline', iconColor: '#E91E63', bgColor: '#FCE4EC' },
+  { id: 'pong', title: 'Pong', screen: 'Pong', icon: 'tennisball-outline', iconColor: '#FF5722', bgColor: '#FBE9E7' },
+  { id: 'cosmic', title: 'Cosmic Striker', screen: 'CosmicStriker', icon: 'rocket-outline', iconColor: '#9C27B0', bgColor: '#E8EAF6' },
+];
 
 const palette = {
   dark: {
@@ -53,7 +46,6 @@ const palette = {
     subtext: "#8B95A5",
     accent: "#4F8CFF",
     accentSoft: "rgba(79,140,255,0.14)",
-    danger: "#FF6B6B",
   },
   light: {
     bg: "#C2F2FF",
@@ -63,13 +55,11 @@ const palette = {
     subtext: "#64748B",
     accent: "#2563EB",
     accentSoft: "rgba(37,99,235,0.08)",
-    danger: "#DC2626",
   },
 };
 
 type Colors = typeof palette.dark;
 
-// ---------- Animated tile ----------
 function AnimatedTile({
   imageUri,
   label,
@@ -77,13 +67,17 @@ function AnimatedTile({
   index,
   colors,
   fallbackIcon = "game-controller-outline",
+  iconColor,
+  bgColor,
 }: {
   imageUri?: string;
   label: string;
   onPress: () => void;
   index: number;
   colors: Colors;
-  fallbackIcon?: keyof typeof Ionicons.glyphMap;
+  fallbackIcon?: string;
+  iconColor?: string;
+  bgColor?: string;
 }) {
   const scale = useRef(new Animated.Value(1)).current;
   const entrance = useRef(new Animated.Value(0)).current;
@@ -102,6 +96,16 @@ function AnimatedTile({
     Animated.spring(scale, { toValue: 0.93, useNativeDriver: true, speed: 40, bounciness: 4 }).start();
   const pressOut = () =>
     Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 30, bounciness: 8 }).start();
+
+  const renderIcon = () => {
+    if (imageUri) return <Image source={{ uri: imageUri }} style={styles.tileImage} />;
+
+    if (fallbackIcon === 'snake') {
+      return <MaterialCommunityIcons name="snake" size={26} color={iconColor || "#4CAF50"} />;
+    }
+
+    return <Ionicons name={fallbackIcon as any} size={26} color={iconColor || colors.accent} />;
+  };
 
   return (
     <Animated.View
@@ -123,14 +127,10 @@ function AnimatedTile({
         <View
           style={[
             styles.tileImageWrap,
-            { backgroundColor: colors.accentSoft, borderColor: colors.cardBorder },
+            { backgroundColor: bgColor || "#FFFFFF", borderColor: colors.cardBorder },
           ]}
         >
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={styles.tileImage} />
-          ) : (
-            <Ionicons name={fallbackIcon} size={26} color={colors.accent} />
-          )}
+          {renderIcon()}
         </View>
         <Text style={[styles.tileLabel, { color: colors.text }]} numberOfLines={1}>
           {label}
@@ -140,7 +140,6 @@ function AnimatedTile({
   );
 }
 
-// ---------- Section wrapper ----------
 function Section({
   title,
   icon,
@@ -149,7 +148,6 @@ function Section({
   onScroll,
   colors,
   onArrow,
-  empty,
   iconColor,
   iconBg,
 }: {
@@ -160,7 +158,6 @@ function Section({
   onScroll: (e: any) => void;
   colors: Colors;
   onArrow: (dir: "left" | "right") => void;
-  empty?: React.ReactNode;
   iconColor?: string;
   iconBg?: string;
 }) {
@@ -194,42 +191,36 @@ function Section({
         </View>
       </View>
 
-      {empty ? (
-        <View style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          {empty}
-        </View>
-      ) : (
-        <View style={styles.carouselContainer}>
-          <TouchableOpacity
-            style={[styles.sideArrow, { borderColor: colors.cardBorder, backgroundColor: colors.card }]}
-            onPress={() => onArrow("left")}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="chevron-back" size={18} color={colors.subtext} />
-          </TouchableOpacity>
+      <View style={styles.carouselContainer}>
+        <TouchableOpacity
+          style={[styles.sideArrow, { borderColor: colors.cardBorder, backgroundColor: colors.card }]}
+          onPress={() => onArrow("left")}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={18} color={colors.subtext} />
+        </TouchableOpacity>
 
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            style={{ flex: 1 }}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.rowWrapper}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
-            decelerationRate="fast"
-          >
-            {children}
-          </ScrollView>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          style={{ flex: 1 }}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.rowWrapper}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          decelerationRate="fast"
+        >
+          {children}
+        </ScrollView>
 
-          <TouchableOpacity
-            style={[styles.sideArrow, { borderColor: colors.cardBorder, backgroundColor: colors.card }]}
-            onPress={() => onArrow("right")}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="chevron-forward" size={18} color={colors.subtext} />
-          </TouchableOpacity>
-        </View>
-      )}
+        <TouchableOpacity
+          style={[styles.sideArrow, { borderColor: colors.cardBorder, backgroundColor: colors.card }]}
+          onPress={() => onArrow("right")}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-forward" size={18} color={colors.subtext} />
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
@@ -242,9 +233,6 @@ export default function HomeScreen() {
 
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loadingYouTube, setLoadingYouTube] = useState(true);
-  const [ytError, setYtError] = useState(false);
-
-  const { loading: loadingGames, error: errorGames, data } = useQuery<GamesData>(GAMES_QUERY);
 
   const playlistsRef = useRef<ScrollView>(null);
   const gamesRef = useRef<ScrollView>(null);
@@ -253,7 +241,6 @@ export default function HomeScreen() {
 
   const headerFade = useRef(new Animated.Value(0)).current;
   const headerScale = useRef(new Animated.Value(0.92)).current;
-  const spinner = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -271,19 +258,6 @@ export default function HomeScreen() {
       }),
     ]).start();
   }, []);
-
-  useEffect(() => {
-    if (loadingYouTube || loadingGames) {
-      Animated.loop(
-        Animated.timing(spinner, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ).start();
-    }
-  }, [loadingYouTube, loadingGames]);
 
   const scroll = (
     ref: React.RefObject<ScrollView | null>,
@@ -305,16 +279,11 @@ export default function HomeScreen() {
           `https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&key=${API_KEY}`
         );
         const json = await res.json();
-        if (json.error) {
-          console.error("YouTube API error:", json.error.code, json.error.message);
-          if (!cancelled) setYtError(true);
-          return;
+        if (!cancelled) {
+          setPlaylists(Array.isArray(json?.items) ? json.items : []);
+          setLoadingYouTube(false);
         }
-        if (!cancelled) setPlaylists(Array.isArray(json?.items) ? json.items : []);
       } catch (err) {
-        console.error(err);
-        if (!cancelled) setYtError(true);
-      } finally {
         if (!cancelled) setLoadingYouTube(false);
       }
     };
@@ -324,37 +293,9 @@ export default function HomeScreen() {
     };
   }, []);
 
-  const openGameUrl = useCallback((url?: string) => {
-    if (!url) return Alert.alert("Unavailable", "Game URL not available.");
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) Linking.openURL(url);
-        else Alert.alert("Error", "Cannot open the game URL.");
-      })
-      .catch(() => Alert.alert("Error", "Something went wrong opening the URL."));
-  }, []);
-
-  if (loadingYouTube || loadingGames) {
-    const spin = spinner.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
-    return (
-      <View style={[styles.container, { backgroundColor: colors.bg }]}>
-        <View style={styles.center}>
-          <Animated.View
-            style={[
-              styles.loadingRing,
-              { borderColor: colors.cardBorder, borderTopColor: colors.accent, transform: [{ rotate: spin }] },
-            ]}
-          />
-          <Text style={[styles.loadingText, { color: colors.subtext }]}>Loading PlayTime…</Text>
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <Animated.View
           style={{
             opacity: headerFade,
@@ -376,7 +317,6 @@ export default function HomeScreen() {
           <Text style={[styles.title, { color: colors.text }]}>{CUSTOM_CHANNEL_TITLE}</Text>
         </Animated.View>
 
-        {/* Playlists */}
         <Section
           title="Playlists"
           icon="logo-youtube"
@@ -386,20 +326,6 @@ export default function HomeScreen() {
           colors={colors}
           onScroll={(e: any) => (playlistsScrollX.current = e.nativeEvent.contentOffset.x)}
           onArrow={(dir) => scroll(playlistsRef, dir, playlistsScrollX)}
-          empty={
-            ytError || playlists.length === 0 ? (
-              <>
-                <Ionicons
-                  name={ytError ? "cloud-offline-outline" : "albums-outline"}
-                  size={20}
-                  color={ytError ? colors.danger : colors.subtext}
-                />
-                <Text style={[styles.emptyText, { color: ytError ? colors.danger : colors.subtext }]}>
-                  {ytError ? "Couldn't load playlists" : "No playlists yet"}
-                </Text>
-              </>
-            ) : null
-          }
         >
           {playlists.map((playlist, i) => (
             <AnimatedTile
@@ -419,7 +345,6 @@ export default function HomeScreen() {
           ))}
         </Section>
 
-        {/* Games */}
         <Section
           title="Games"
           icon="game-controller-outline"
@@ -429,34 +354,21 @@ export default function HomeScreen() {
           colors={colors}
           onScroll={(e: any) => (gamesScrollX.current = e.nativeEvent.contentOffset.x)}
           onArrow={(dir) => scroll(gamesRef, dir, gamesScrollX)}
-          empty={
-            errorGames || (data?.games ?? []).length === 0 ? (
-              <>
-                <Ionicons
-                  name={errorGames ? "cloud-offline-outline" : "game-controller-outline"}
-                  size={20}
-                  color={errorGames ? colors.danger : colors.subtext}
-                />
-                <Text style={[styles.emptyText, { color: errorGames ? colors.danger : colors.subtext }]}>
-                  {errorGames ? "Coming soon!" : "No games yet — check back soon"}
-                </Text>
-              </>
-            ) : null
-          }
         >
-          {(data?.games ?? []).map((game, i) => (
+          {LOCAL_GAMES.map((game, i) => (
             <AnimatedTile
               key={game.id}
               index={i}
               colors={colors}
-              imageUri={game.icon}
               label={game.title}
-              onPress={() => openGameUrl(game.url)}
+              fallbackIcon={game.icon as any}
+              onPress={() => navigation.navigate(game.screen as any)}
+              iconColor={game.iconColor}
+              bgColor={game.bgColor}
             />
           ))}
         </Section>
 
-        {/* Donate */}
         <DonateButton />
       </ScrollView>
     </View>
@@ -465,16 +377,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  loadingRing: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 3,
-  },
-  loadingText: { marginTop: 14, fontSize: 13, fontFamily: "Inter_600SemiBold" },
   scrollContent: { padding: 18, paddingBottom: 44 },
-
   logoRingWrap: {
     width: 260,
     height: 260,
@@ -490,7 +393,6 @@ const styles = StyleSheet.create({
   },
   channelLogo: { width: "100%", height: "100%" },
   title: { fontSize: 26, fontFamily: "Inter_800ExtraBold", textAlign: "center", letterSpacing: 0.2, marginBottom: 32 },
-
   section: { marginBottom: 26 },
   sectionHeaderRow: {
     flexDirection: "row",
@@ -520,9 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     zIndex: 10,
   },
-
   rowWrapper: { flexDirection: "row", gap: 12, paddingVertical: 4, paddingHorizontal: 10 },
-
   tile: { alignItems: "center", width: 84 },
   tileImageWrap: {
     width: 76,
@@ -535,14 +435,4 @@ const styles = StyleSheet.create({
   },
   tileImage: { width: "100%", height: "100%" },
   tileLabel: { marginTop: 8, fontSize: 12, fontFamily: "Inter_600SemiBold", textAlign: "center" },
-
-  emptyCard: {
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingVertical: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  emptyText: { fontSize: 13, fontFamily: "Inter_600SemiBold", textAlign: "center" },
 });
