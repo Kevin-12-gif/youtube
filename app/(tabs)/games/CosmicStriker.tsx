@@ -11,7 +11,11 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../ThemeContext";
+import { useMusic } from "../MusicContext";
+import MuteButton from "../MuteButton";
 
 interface CosmicStrikerProps {
   onScoreChange?: (score: number) => void;
@@ -106,8 +110,17 @@ export function CosmicStriker({
   onGameEnd = () => {},
   gameState = "playing",
 }: CosmicStrikerProps) {
+  const navigation = useNavigation();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("CosmicStriker");
+    }, [setTrack])
+  );
+
   const { width, height } = useWindowDimensions();
 
   const getGameDimensions = () => {
@@ -798,9 +811,19 @@ export function CosmicStriker({
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.titleRow}>
-        <Text style={[styles.title, { color: themeColors.title }]}>COSMIC STRIKER</Text>
-        <View style={[styles.titleDot, { backgroundColor: themeColors.titleAccent }]} />
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color={themeColors.text} />
+        </TouchableOpacity>
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, { color: themeColors.title }]}>COSMIC STRIKER</Text>
+          <View style={[styles.titleDot, { backgroundColor: themeColors.titleAccent }]} />
+        </View>
+        <MuteButton />
       </View>
 
       <View style={styles.gameInfo}>
@@ -1045,7 +1068,24 @@ export function CosmicStriker({
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, alignItems: "center" },
-  titleRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    paddingTop: Platform.OS === 'web' ? 10 : 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(128,128,128,0.15)",
+  },
+  titleRow: { flexDirection: "row", alignItems: "center" },
   title: { fontSize: 22, fontWeight: "800", textAlign: "center", letterSpacing: 1 },
   titleDot: { width: 7, height: 7, borderRadius: 4, marginLeft: 6, marginBottom: 12 },
   gameInfo: { alignItems: "center", marginBottom: 10 },

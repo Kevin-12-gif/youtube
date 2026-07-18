@@ -11,12 +11,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import DonateButton from "./DonateButton";
+import MuteButton from "./MuteButton";
 import { useTheme } from "./ThemeContext";
+import { useMusic } from "./MusicContext";
 import { RootStackParamList } from "./types";
 
 const API_KEY = "AIzaSyDf6LuMVpyldU2b4iSLxACYG-TFi21MxPo";
@@ -228,8 +230,15 @@ function Section({
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
   const colors = isDark ? palette.dark : palette.light;
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loadingYouTube, setLoadingYouTube] = useState(true);
@@ -295,6 +304,9 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={styles.topActions}>
+        <MuteButton />
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Animated.View
           style={{
@@ -377,6 +389,12 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  topActions: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 100,
+  },
   scrollContent: { padding: 18, paddingBottom: 44 },
   logoRingWrap: {
     width: 260,

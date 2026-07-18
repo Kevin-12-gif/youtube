@@ -16,7 +16,11 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../ThemeContext";
+import { useMusic } from "../MusicContext";
+import MuteButton from "../MuteButton";
 
 interface TwentyFortyEightGameProps {
   onScoreChange?: (score: number) => void;
@@ -176,6 +180,7 @@ function useThemeColors() {
           emptyTileBorder: "rgba(255,255,255,0.08)",
           title: "#7dd3fc",
           titleAccent: "#f472b6",
+          text: "#e2e8f0",
           scoreLabel: "#94a3b8",
           scoreValue: "#facc15",
           buttonBg: "#1c2444",
@@ -196,6 +201,7 @@ function useThemeColors() {
           emptyTileBorder: "rgba(0,0,0,0.06)",
           title: "#7c3aed",
           titleAccent: "#f97316",
+          text: "#1e1b4b",
           scoreLabel: "#78716c",
           scoreValue: "#16a34a",
           buttonBg: "#ffffff",
@@ -403,7 +409,15 @@ export function TwentyFortyEightGame({
   onGameEnd = () => {},
   gameState = "playing",
 }: TwentyFortyEightGameProps) {
+  const navigation = useNavigation();
   const { isDark, palette, tiles } = useThemeColors();
+  const { setTrack } = useMusic();
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const [grid, setGrid] = useState<Grid>(emptyGrid());
   const [score, setScore] = useState(0);
@@ -605,15 +619,20 @@ export function TwentyFortyEightGame({
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <View style={styles.header}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={palette.text} />
+        </TouchableOpacity>
         <View style={styles.titleRow}>
           <Text style={[styles.title, { color: palette.title }]}>2048</Text>
           <View
             style={[styles.titleDot, { backgroundColor: palette.titleAccent }]}
           />
         </View>
+        <MuteButton color={palette.text} />
+      </View>
 
-        <View style={styles.scoreRow}>
+      <View style={styles.scoreRow}>
           <View
             style={[
               styles.scoreCard,
@@ -647,7 +666,6 @@ export function TwentyFortyEightGame({
             </Text>
           </View>
         </View>
-      </View>
 
       <Animated.View
         style={{
@@ -827,16 +845,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: "center",
   },
-  header: {
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "space-between",
     width: "100%",
     maxWidth: 360,
+    marginBottom: 20,
+    paddingTop: Platform.OS === 'web' ? 10 : 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(128,128,128,0.15)",
   },
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 14,
   },
   title: {
     fontSize: 34,

@@ -14,12 +14,15 @@ import {
   RouteProp,
   useNavigation,
   useRoute,
+  useFocusEffect,
 } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { RootStackParamList } from "./types";
 import { useTheme } from "./ThemeContext";
+import { useMusic } from "./MusicContext";
+import MuteButton from "./MuteButton";
 
 type PlaylistRouteProp = RouteProp<RootStackParamList, "Playlist">;
 type PlaylistNavProp = NavigationProp<RootStackParamList, "Playlist">;
@@ -99,7 +102,14 @@ export default function PlaylistScreen() {
   const navigation = useNavigation<PlaylistNavProp>();
   const route = useRoute<PlaylistRouteProp>();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,6 +200,8 @@ export default function PlaylistScreen() {
             {route.params.title}
           </Text>
         ) : null}
+        <View style={{ flex: 1 }} />
+        <MuteButton />
       </View>
     </Animated.View>
   );

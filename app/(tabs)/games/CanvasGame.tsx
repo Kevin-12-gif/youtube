@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   PanResponder,
@@ -10,8 +10,8 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import Svg, {
   Circle,
   Defs,
@@ -21,7 +21,10 @@ import Svg, {
   RadialGradient,
   Stop,
 } from "react-native-svg";
+import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../ThemeContext";
+import { useMusic } from "../MusicContext";
+import MuteButton from "../MuteButton";
 
 interface DrawingCanvasProps {
   onScoreChange?: (score: number) => void;
@@ -426,8 +429,15 @@ export function DrawingCanvas({
 }: DrawingCanvasProps) {
   const navigation = useNavigation();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
   const colors = isDark ? PALETTE.dark : PALETTE.light;
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const { width: SCREEN_WIDTH } = useWindowDimensions();
 
@@ -710,19 +720,26 @@ export function DrawingCanvas({
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.backWrapper}>
-        <BackButton onPress={() => navigation.goBack()} isDark={isDark} />
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.title, { color: colors.text }]}>🎨 Draw Pad</Text>
+        <View style={styles.headerActions}>
+          <MuteButton color={colors.text} />
+        </View>
       </View>
 
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>🎨 Draw Pad</Text>
-        <View style={styles.pillRow}>
-          <View style={[styles.pill, { backgroundColor: colors.countPill }]}>
-            <Text style={styles.pillText}>{strokes.length} strokes</Text>
-          </View>
-          <View style={[styles.pill, { backgroundColor: colors.scorePill }]}>
-            <Text style={styles.pillText}>🖌️ {activeSize}px</Text>
-          </View>
+      <View style={styles.pillRow}>
+        <View style={[styles.pill, { backgroundColor: colors.countPill }]}>
+          <Text style={styles.pillText}>{strokes.length} strokes</Text>
+        </View>
+        <View style={[styles.pill, { backgroundColor: colors.scorePill }]}>
+          <Text style={styles.pillText}>🖌️ {activeSize}px</Text>
         </View>
       </View>
 
@@ -983,24 +1000,28 @@ export function DrawingCanvas({
 
 const styles = StyleSheet.create({
   container: { padding: 20, alignItems: "center" },
-  backWrapper: {
-    width: "100%",
+  headerRow: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
     marginBottom: 10,
+    paddingTop: Platform.OS === 'web' ? 10 : 20,
   },
   backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(128,128,128,0.15)",
   },
-  backButtonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  header: { alignItems: "center", marginBottom: 16, width: "100%" },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   title: { fontSize: 26, fontWeight: "800", marginBottom: 10, letterSpacing: 0.5 },
   pillRow: { flexDirection: "row", gap: 8 },
   pill: {

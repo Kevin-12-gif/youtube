@@ -1,20 +1,30 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
-import React from 'react';
+import { RouteProp, useRoute, useFocusEffect } from '@react-navigation/native';
+import React, { useCallback } from 'react';
 import {
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  View,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { RootStackParamList } from './types';
+import { useMusic } from './MusicContext';
 
 type VideoRouteProp = RouteProp<RootStackParamList, 'Video'>;
 
 export default function VideoScreen() {
-  const route = useRoute<VideoRouteProp>();
-  const { videoId } = route.params;
-  const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1`;
+  const route = useRoute<VideoRouteProp>();
+  const { setTrack } = useMusic();
+  const { videoId } = route.params;
+
+  useFocusEffect(
+    useCallback(() => {
+      // Stop background music when playing a video
+      setTrack(null);
+    }, [setTrack])
+  );
+
+  const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1`;
 
   return (
     <SafeAreaView style={styles.container}>

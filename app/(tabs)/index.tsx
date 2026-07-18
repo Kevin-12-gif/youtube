@@ -22,6 +22,7 @@ import CosmicStriker from './games/CosmicStriker';
 import { RootStackParamList } from './types';
 
 import { ThemeProvider, useTheme } from './ThemeContext';
+import { MusicProvider } from './MusicContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -72,14 +73,16 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      {Platform.OS === 'web' && (
-        <style dangerouslySetInnerHTML={{ __html: `
-          html, body, #root {
-            font-family: 'Inter_400Regular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          }
-        `}} />
-      )}
-      <MainNavigator />
+      <MusicProvider>
+        {Platform.OS === 'web' && (
+          <style dangerouslySetInnerHTML={{ __html: `
+            html, body, #root {
+              font-family: 'Inter_400Regular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            }
+          `}} />
+        )}
+        <MainNavigator />
+      </MusicProvider>
     </ThemeProvider>
   );
 }

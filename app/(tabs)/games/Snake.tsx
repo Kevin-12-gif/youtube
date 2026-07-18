@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -8,10 +8,15 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../ThemeContext";
+import { useMusic } from "../MusicContext";
+import MuteButton from "../MuteButton";
 
 const CELL = 16;
 
@@ -206,9 +211,17 @@ export function SnakeGame({
   onGameEnd = () => {},
   gameState = "playing",
 }: SnakeGameProps) {
+  const navigation = useNavigation();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
   const colors: Colors = isDark ? PALETTE.dark : PALETTE.light;
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const [score, setScore] = useState(0);
   const [snakeBody, setSnakeBody] = useState<Point[]>([{ x: 10, y: 10 }]);
@@ -410,14 +423,20 @@ export function SnakeGame({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
-      <Animated.Text
-        style={[
-          styles.title,
-          { color: colors.text, transform: [{ scale: titlePulse }] },
-        ]}
-      >
-        🐍 Classic Snake
-      </Animated.Text>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Animated.Text
+          style={[
+            styles.title,
+            { color: colors.text, transform: [{ scale: titlePulse }] },
+          ]}
+        >
+          🐍 Classic Snake
+        </Animated.Text>
+        <MuteButton color={colors.text} />
+      </View>
 
       <View style={styles.pillRow}>
         <Pill
@@ -571,11 +590,27 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    paddingTop: Platform.OS === 'web' ? 10 : 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(128,128,128,0.15)",
+  },
   title: {
     fontSize: 24,
     fontWeight: "800",
     textAlign: "center",
-    marginBottom: 10,
     letterSpacing: 0.5,
   },
   pillRow: {

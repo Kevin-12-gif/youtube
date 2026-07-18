@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -6,10 +6,15 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../ThemeContext";
+import { useMusic } from "../MusicContext";
+import MuteButton from "../MuteButton";
 
 interface MemoryGameProps {
   onScoreChange?: (score: number) => void;
@@ -300,9 +305,17 @@ export function MemoryGame({
   onGameEnd = () => {},
   gameState = "playing",
 }: MemoryGameProps) {
+  const navigation = useNavigation();
   const { theme } = useTheme();
+  const { setTrack } = useMusic();
   const isDark = theme === "dark";
   const colors = isDark ? PALETTE.dark : PALETTE.light;
+
+  useFocusEffect(
+    useCallback(() => {
+      setTrack("RelaxedScene");
+    }, [setTrack])
+  );
 
   const { width: SCREEN_WIDTH } = useWindowDimensions();
 
@@ -470,7 +483,10 @@ export function MemoryGame({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg[0] }]}>
-      <View style={styles.header}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
         <Animated.Text
           style={[
             styles.title,
@@ -479,47 +495,48 @@ export function MemoryGame({
         >
           🧠 Memory Match
         </Animated.Text>
+        <MuteButton color={colors.text} />
+      </View>
 
-        <View style={styles.pillRow}>
-          <View style={[styles.pill, { backgroundColor: colors.levelPill }]}>
-            <Text style={styles.pillText}>LVL {level}</Text>
-          </View>
-          <View style={[styles.pill, { backgroundColor: colors.matchesPill }]}>
-            <Text style={styles.pillText}>
-              {matches}/{requiredMatches} ✅
-            </Text>
-          </View>
-          <View style={[styles.pill, { backgroundColor: colors.scorePill }]}>
-            <Text style={styles.pillText}>⭐ {score}</Text>
-          </View>
+      <View style={styles.pillRow}>
+        <View style={[styles.pill, { backgroundColor: colors.levelPill }]}>
+          <Text style={styles.pillText}>LVL {level}</Text>
         </View>
+        <View style={[styles.pill, { backgroundColor: colors.matchesPill }]}>
+          <Text style={styles.pillText}>
+            {matches}/{requiredMatches} ✅
+          </Text>
+        </View>
+        <View style={[styles.pill, { backgroundColor: colors.scorePill }]}>
+          <Text style={styles.pillText}>⭐ {score}</Text>
+        </View>
+      </View>
 
+      <View
+        style={[
+          styles.progressTrack,
+          {
+            borderColor: colors.cardBackBorder,
+            width: Math.min(260, SCREEN_WIDTH * 0.7),
+          },
+        ]}
+      >
         <View
           style={[
-            styles.progressTrack,
+            styles.progressFill,
             {
-              borderColor: colors.cardBackBorder,
-              width: Math.min(260, SCREEN_WIDTH * 0.7),
+              width: `${Math.min(progress, 1) * 100}%`,
+              backgroundColor: colors.matchedBorder,
             },
           ]}
-        >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${Math.min(progress, 1) * 100}%`,
-                backgroundColor: colors.matchedBorder,
-              },
-            ]}
-          />
-        </View>
-
-        {combo > 1 && (
-          <Text style={[styles.comboText, { color: colors.subtext }]}>
-            🔥 Combo x{combo}!
-          </Text>
-        )}
+        />
       </View>
+
+      {combo > 1 && (
+        <Text style={[styles.comboText, { color: colors.subtext }]}>
+          🔥 Combo x{combo}!
+        </Text>
+      )}
 
       <View
         style={[
@@ -588,10 +605,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  header: {
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 22,
+    justifyContent: "space-between",
     width: "100%",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    paddingTop: Platform.OS === 'web' ? 10 : 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(128,128,128,0.15)",
   },
   title: {
     fontSize: 26,
