@@ -163,7 +163,7 @@ export function PongGame({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("Pong");
     }, [setTrack])
   );
 
