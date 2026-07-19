@@ -236,7 +236,7 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("Main");
     }, [setTrack])
   );
 

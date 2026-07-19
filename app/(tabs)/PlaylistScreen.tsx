@@ -107,7 +107,7 @@ export default function PlaylistScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("Main");
     }, [setTrack])
   );
 

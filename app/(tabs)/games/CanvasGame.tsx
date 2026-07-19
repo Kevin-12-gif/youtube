@@ -435,7 +435,7 @@ export function DrawingCanvas({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("MorningMood");
+      setTrack("DrawPad");
     }, [setTrack])
   );
 

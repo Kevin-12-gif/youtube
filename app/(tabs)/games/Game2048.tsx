@@ -415,7 +415,7 @@ export function TwentyFortyEightGame({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("Game2048");
     }, [setTrack])
   );
 

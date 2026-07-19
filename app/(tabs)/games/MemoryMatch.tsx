@@ -313,7 +313,7 @@ export function MemoryGame({
 
   useFocusEffect(
     useCallback(() => {
-      setTrack("RelaxedScene");
+      setTrack("MemoryMatch");
     }, [setTrack])
   );
 
