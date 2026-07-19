@@ -19,6 +19,7 @@ import MemoryMatch from './games/MemoryMatch';
 import CanvasGame from './games/CanvasGame';
 import Pong from './games/Pong';
 import CosmicStriker from './games/CosmicStriker';
+import BrickBreaker from './games/BrickBreaker';
 import { RootStackParamList } from './types';
 
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -49,6 +50,7 @@ function MainNavigator() {
       <Stack.Screen name="CanvasGame" component={CanvasGame} />
       <Stack.Screen name="Pong" component={Pong} />
       <Stack.Screen name="CosmicStriker" component={CosmicStriker} />
+      <Stack.Screen name="BrickBreaker" component={BrickBreaker} />
     </Stack.Navigator>
   );
 }

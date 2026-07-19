@@ -9,4 +9,5 @@ export type RootStackParamList = {
   CanvasGame: undefined;
   Pong: undefined;
   CosmicStriker: undefined;
+  BrickBreaker: undefined;
 };

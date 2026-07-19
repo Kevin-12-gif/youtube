@@ -170,7 +170,8 @@ export function PongGame({
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
 
   const gameAreaWidth = SCREEN_WIDTH - 40;
-  const gameAreaHeight = Math.min(340, SCREEN_HEIGHT - 380);
+  // Use percentage-based height to ensure controls fit on all phones
+  const gameAreaHeight = Math.max(260, Math.min(SCREEN_HEIGHT * 0.45, 400));
   const paddleHeight = 60;
   const paddleWidth = 8;
   const ballSize = 10;

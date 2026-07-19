@@ -37,6 +37,7 @@ const LOCAL_GAMES = [
   { id: 'canvas', title: 'Canvas', screen: 'CanvasGame', icon: 'brush-outline', iconColor: '#E91E63', bgColor: '#FCE4EC' },
   { id: 'pong', title: 'Pong', screen: 'Pong', icon: 'tennisball-outline', iconColor: '#FF5722', bgColor: '#FBE9E7' },
   { id: 'cosmic', title: 'Cosmic Striker', screen: 'CosmicStriker', icon: 'rocket-outline', iconColor: '#9C27B0', bgColor: '#E8EAF6' },
+  { id: 'brick', title: 'Brick Breaker', screen: 'BrickBreaker', icon: 'wall', iconColor: '#E91E63', bgColor: '#FCE4EC' },
 ];
 
 const palette = {
@@ -102,8 +103,8 @@ function AnimatedTile({
   const renderIcon = () => {
     if (imageUri) return <Image source={{ uri: imageUri }} style={styles.tileImage} />;
 
-    if (fallbackIcon === 'snake') {
-      return <MaterialCommunityIcons name="snake" size={26} color={iconColor || "#4CAF50"} />;
+    if (fallbackIcon === 'snake' || fallbackIcon === 'wall') {
+      return <MaterialCommunityIcons name={fallbackIcon as any} size={26} color={iconColor || "#4CAF50"} />;
     }
 
     return <Ionicons name={fallbackIcon as any} size={26} color={iconColor || colors.accent} />;

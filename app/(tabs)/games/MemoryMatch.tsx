@@ -477,7 +477,7 @@ export function MemoryGame({
     () => getGridDimensions(cards.length),
     [cards.length],
   );
-  const cardSize = cards.length <= 8 ? 68 : cards.length <= 12 ? 58 : 50;
+  const cardSize = cards.length <= 8 ? 64 : cards.length <= 12 ? 54 : 46;
   const requiredMatches = getPairsForLevel(level);
   const progress = requiredMatches > 0 ? matches / requiredMatches : 0;
 

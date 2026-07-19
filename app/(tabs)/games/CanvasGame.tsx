@@ -473,8 +473,8 @@ export function DrawingCanvas({
     initialUserMidY: number;
   } | null>(null);
 
-  const canvasWidth = Math.min(340, SCREEN_WIDTH - 40);
-  const canvasHeight = canvasWidth * 1.1;
+  const canvasWidth = Math.min(width - 40, 400);
+  const canvasHeight = Math.min(height * 0.48, 500);
 
   const vbW = canvasWidth / zoom;
   const vbH = canvasHeight / zoom;
@@ -715,11 +715,7 @@ export function DrawingCanvas({
   ).length;
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.bg[0] }}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={[styles.container, { backgroundColor: colors.bg[0] }]}>
       <View style={styles.headerRow}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -994,7 +990,7 @@ export function DrawingCanvas({
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

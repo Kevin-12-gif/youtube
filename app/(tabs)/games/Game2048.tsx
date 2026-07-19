@@ -41,7 +41,7 @@ interface MoveResult {
 const SIZE = 4;
 const SWIPE_THRESHOLD = 24;
 
-// ---------- pure game logic (no React state in here) ----------
+// ---------- theme ----------
 
 function emptyGrid(): Grid {
   return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
@@ -914,8 +914,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   tileSlot: {
-    width: 72,
-    height: 72,
+    width: 68,
+    height: 68,
     margin: 4,
     borderRadius: 12,
     borderWidth: 1,

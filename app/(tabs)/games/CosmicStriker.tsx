@@ -124,21 +124,10 @@ export function CosmicStriker({
   const { width, height } = useWindowDimensions();
 
   const getGameDimensions = () => {
-    const gWidth = width - 40;
-    const titleHeight = 40;
-    const scoreHeight = 30;
-    const healthHeight = 30;
-    const controlsHeight = 160;
-    const padding = 60;
-
-    const availableHeight =
-      height -
-      titleHeight -
-      scoreHeight -
-      healthHeight -
-      controlsHeight -
-      padding;
-    const gHeight = Math.max(400, Math.min(availableHeight, 600));
+    const gWidth = Math.min(width - 40, 440);
+    // Use flexible percentage of screen height
+    const availableHeight = height * 0.55;
+    const gHeight = Math.max(360, Math.min(availableHeight, 600));
 
     return { gameWidth: gWidth, gameHeight: gHeight };
   };

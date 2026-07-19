@@ -243,14 +243,16 @@ export function SnakeGame({
   }, [SCREEN_WIDTH]);
 
   const boardRows = useMemo(() => {
-    const titleHeight = 46;
-    const pillsHeight = 40;
-    const controlsHeight = 250;
-    const padding = 60;
-    const availableHeight =
-      SCREEN_HEIGHT - titleHeight - pillsHeight - controlsHeight - padding;
-    const gameHeight = Math.max(200, Math.min(availableHeight, gameWidth));
-    return Math.max(6, Math.floor(gameHeight / CELL));
+    // Calculate available height: Screen height minus Header, Pills, and Controls
+    // Using percentages to be more adaptive
+    const headerHeight = 60;
+    const pillsHeight = 50;
+    const footerHeight = 220; // Controls at the bottom
+    const safePadding = 40;
+
+    const availableHeight = SCREEN_HEIGHT - headerHeight - pillsHeight - footerHeight - safePadding;
+    const gameHeight = Math.max(240, Math.min(availableHeight, gameWidth * 1.5));
+    return Math.max(8, Math.floor(gameHeight / CELL));
   }, [gameWidth, SCREEN_HEIGHT]);
 
   const boardCols = gameWidth / CELL;
